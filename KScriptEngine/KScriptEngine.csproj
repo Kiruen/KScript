@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{934E4A48-E6A3-4D6E-ACE9-7E50192F3565}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KScript</RootNamespace>
+    <AssemblyName>KScriptEngine</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="asprise-ocr-api">
+      <HintPath>..\packages\asprise-ocr-api.15.3.1.0\lib\net40\asprise-ocr-api.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AST\ArgumentList.cs" />
+    <Compile Include="AST\Literal\ListLiteral.cs" />
+    <Compile Include="AST\ASTLeaf.cs" />
+    <Compile Include="AST\ASTList.cs" />
+    <Compile Include="AST\ASTree.cs" />
+    <Compile Include="AST\ASTValue.cs" />
+    <Compile Include="AST\BinaryExpr.cs" />
+    <Compile Include="AST\BlockStmnt.cs" />
+    <Compile Include="AST\ClassBody.cs" />
+    <Compile Include="AST\ClassStmnt.cs" />
+    <Compile Include="AST\Closure.cs" />
+    <Compile Include="AST\Literal\SetOrDict.cs" />
+    <Compile Include="AST\Visitor\VariableCollector.cs" />
+    <Compile Include="AST\Visitor\Visitor.cs" />
+    <Compile Include="Execution\Debugger.cs" />
+    <Compile Include="Legacy\Pair.cs" />
+    <Compile Include="AST\Literal\TupleLiteral.cs" />
+    <Compile Include="AST\DeclareExpr.cs" />
+    <Compile Include="AST\DefStmnt.cs" />
+    <Compile Include="AST\CommaExpr.cs" />
+    <Compile Include="AST\ExceptionStmnt.cs" />
+    <Compile Include="AST\ForeachStmnt.cs" />
+    <Compile Include="AST\ForStmnt.cs" />
+    <Compile Include="AST\IfStmnt.cs" />
+    <Compile Include="AST\InstExpr.cs" />
+    <Compile Include="KUtil.cs" />
+    <Compile Include="Legacy\LinkStmnt.cs" />
+    <Compile Include="AST\MatchStmnt.cs" />
+    <Compile Include="AST\Modifier.cs" />
+    <Compile Include="AST\MonadExpr.cs" />
+    <Compile Include="AST\Literal\RangeExpr.cs" />
+    <Compile Include="Legacy\MallocStmnt.cs" />
+    <Compile Include="Legacy\NegativeExpr.cs" />
+    <Compile Include="AST\Nullstmnt.cs" />
+    <Compile Include="AST\Literal\NumberLiteral.cs" />
+    <Compile Include="AST\ParameterList.cs" />
+    <Compile Include="AST\Postfix.cs" />
+    <Compile Include="AST\PrimaryExpr.cs" />
+    <Compile Include="AST\Literal\StringLiteral.cs" />
+    <Compile Include="AST\VarName.cs" />
+    <Compile Include="AST\WhileStmnt.cs" />
+    <Compile Include="Environment\Environment.cs" />
+    <Compile Include="Execution\Evaluator.cs" />
+    <Compile Include="KConsole.cs" />
+    <Compile Include="KException.cs" />
+    <Compile Include="KStdInputStream.cs" />
+    <Compile Include="Lexer\Lexer.cs" />
+    <Compile Include="Lexer\PreProcessor.cs" />
+    <Compile Include="Lexer\Token.cs" />
+    <Compile Include="Parser\ArrayParser.cs" />
+    <Compile Include="Parser\BasicParser.cs" />
+    <Compile Include="Parser\ClassParser.cs" />
+    <Compile Include="Parser\FuncParser.cs" />
+    <Compile Include="Parser\Parser.cs" />
+    <Compile Include="System\API.cs" />
+    <Compile Include="System\BuiltIn\Indexable.cs" />
+    <Compile Include="Legacy\KForm\KForm.cs" />
+    <Compile Include="System\BuiltIn\KList.cs" />
+    <Compile Include="System\BuiltIn\KDataStream.cs" />
+    <Compile Include="System\BuiltIn\KRange.cs" />
+    <Compile Include="System\BuiltIn\KSet.cs" />
+    <Compile Include="System\BuiltIn\KTuple.cs" />
+    <Compile Include="System\Callable\NativeMember.cs" />
+    <Compile Include="System\ClassInfo.cs" />
+    <Compile Include="KAttribute\MapAttribute.cs" />
+    <Compile Include="System\Callable\Function.cs" />
+    <Compile Include="System\Callable\IFunction.cs" />
+    <Compile Include="System\KObject.cs" />
+    <Compile Include="System\BuiltIn\KRegex.cs" />
+    <Compile Include="System\KTimeOut.cs" />
+    <Compile Include="System\BuiltIn\KDict.cs" />
+    <Compile Include="System\BuiltIn\KNameSpace.cs" />
+    <Compile Include="System\BuiltIn\KBuildIn.cs" />
+    <Compile Include="System\BuiltIn\KString.cs" />
+    <Compile Include="System\Callable\NativeFunc.cs" />
+    <Compile Include="System\NativeObject.cs" />
+    <Compile Include="System\Natives.cs" />
+    <Compile Include="System\BuiltIn\KReflection.cs" />
+    <Compile Include="System\BuiltIn\Singleton\FileProxy.cs" />
+    <Compile Include="System\BuiltIn\Singleton\RegexProxy.cs" />
+    <Compile Include="System\BuiltIn\Singleton\ClassLoader.cs" />
+    <Compile Include="Legacy\TestNative.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Execution\EvaluatorExt.cs" />
+    <Compile Include="Execution\VisionEvaluator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
