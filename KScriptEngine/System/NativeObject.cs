@@ -38,7 +38,7 @@ namespace KScript.AST
         public override object Read(string member)
         {
             //读取原生函数实例
-            object result = base.Read(member);
+            object result = base.TryRead(member);
             if (result != null)
                 return result;
             //若不是自定义变量,则读取原生的属性或方法

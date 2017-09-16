@@ -402,13 +402,13 @@ namespace KScript
         public class ANumber : AToken
         {
             public ANumber(Type type) : base(type) { }
-            protected override bool Check(Token t) { return t.isNumber(); }
+            protected override bool Check(Token t) { return t.IsNumber(); }
         }
 
         public class AString : AToken
         {
             public AString(Type type) : base(type) { }
-            protected override bool Check(Token t) { return t.isString(); }
+            protected override bool Check(Token t) { return t.IsString(); }
         }
 
         //优先级

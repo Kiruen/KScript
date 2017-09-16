@@ -1,5 +1,6 @@
 ﻿using KScript.AST;
 using KScript.Callable;
+using KScript.Execution;
 using KScript.KSystem.BuiltIn;
 using System;
 using System.Collections.Generic;
@@ -31,13 +32,38 @@ namespace KScript
             //    (innerEnv as NestedEnv).InsertEnvLink(info.innerEnv);
         }
 
+        //TODO:使用空对象模式,区别C#的null和Ks的null
+        /// <summary>
+        /// 获取成员,若不存在则产生异常
+        /// </summary>
+        /// <param name="member">成员名称</param>
+        /// <returns></returns>
         public virtual object Read(string member)
         {
             Environment env = Where(member);
             //返回成员(字段或函数实例。可访读写静态成员)
-            var res = env == null ? 
-                       classInfo?.Read(member) : env.Get(member);
-            return res;
+            if(env == null)
+            {
+                if (classInfo != null)
+                    return classInfo.Read(member);
+                throw new KException("bad member access: " + member, Debugger.CurrLineNo);
+            }
+            else
+                return env.Get(member);
+            //var res = env == null ? 
+            //           classInfo?.Read(member) : env.Get(member);
+            //return res;
+        }
+
+        /// <summary>
+        /// 试图获取成员,可能返回null.应避免此null和真null混用
+        /// </summary>
+        /// <param name="member">成员名称</param>
+        /// <returns></returns>
+        public virtual object TryRead(string member)
+        {
+            Environment env = Where(member);
+            return env == null ? classInfo?.TryRead(member) : env.Get(member);
         }
 
         /// <summary>
@@ -47,9 +73,16 @@ namespace KScript
         /// <param name="value"></param>
         public virtual void Write(string member, object value)
         {
+            //试图寻找此成员所处环境
             Environment env = Where(member);
             if (env == null)
-                classInfo?.Write(member, value);
+            {
+                //classInfo?.Write(member, value);
+                if (classInfo != null)
+                    classInfo.Write(member, value);
+                throw new KException("bad member access: " + member, Debugger.CurrLineNo);
+            }
+                
             else
                 env.PutInside(member, value);
         }
@@ -70,16 +103,16 @@ namespace KScript
             //MainScope直接相邻)。不可能仅给某个对象一个孤立的内部环境
             Environment env = innerEnv.Where(member);
             //判断是否是从当前环境或其父类环境(继承性环境)找到的该变量
+            //-class用于标记是否为对象环境,做到访问成员时与其他环境隔离
             if (env != null && (env == innerEnv || env.Contains("-class")))         
                 return env;
             else
                 return null;
-                //throw new KException("member: " + member + " not found", this);
         }
 
         public virtual KString ToStr()
         {
-            var func = (Read("_str") as Function)?[0];
+            var func = (TryRead("_str") as Function)?[0];
             if (func == null) return ToString();
             else
             {

@@ -76,7 +76,6 @@ namespace KScript
             object result = null;
             while (lexer.TokenCount != 0)
             {
-                //Thread.CurrentThread.Suspend();
                 ASTree ast = Parse(lexer);
                 if (!(ast is NullStmnt))
                 {
@@ -84,7 +83,9 @@ namespace KScript
                     Debugger.TrySuspend();
                     result = ast.Evaluate(env);
                     if (result is SpecialToken)
+                    {
                         break;
+                    } 
                 }
             }
             return result;

@@ -127,7 +127,7 @@ namespace KScript.AST
                     //判断是内建类型还是自定义类型
                     KObject kobj = info.IsBuiltIn ? null : IniObject(info, newEnv);
                     //试图获得构造函数
-                    var constr = (info.IsBuiltIn ? info : kobj)?.Read("_cons"); //as Function; //info.Name
+                    var constr = (info.IsBuiltIn ? info : kobj)?.TryRead("_cons"); //as Function; //info.Name
                     if (constr != null)
                     {
                         //从环境中删除构造器,以防重复调用
@@ -208,45 +208,49 @@ namespace KScript.AST
 
         public override object Evaluate(Environment env, object prefix)
         {
-            //索引可以使任意类型的
-            object index = Index.Evaluate(env);
-            if (prefix is object[])
-                return (prefix as object[])[Convert.ToInt32(index)];
-            else if(prefix is List<object>)
+            try
             {
-                return (prefix as List<object>)[Convert.ToInt32(index)];
-            }
-            //else if (prefix is Indexable)
-            //{
-            //    return (prefix as Indexable)[index];
-            //}
-            //调用索引器
-            else if (prefix is KObject)
-            {
-                //var args = new Arguments(new List<ASTree>() { new NumberLiteral(new NumToken(-1, index)) });
-                //return args.Evaluate(env, (prefix as KObject).Read("getter"));
-                //首先处理基本类型
-                var getter = prefix.GetType().GetMethod("get_Item");
-                if(getter != null)
+                //索引可以使任意类型的
+                object index = Index.Evaluate(env);
+                if (prefix is object[])
+                    return (prefix as object[])[Convert.ToInt32(index)];
+                else if (prefix is List<object>)
                 {
-                    /*                
-                    if (prefix is KString)
-                        return (prefix as KString)[index];
-                    */
-                    return getter.Invoke(prefix, new [] { index });
+                    return (prefix as List<object>)[Convert.ToInt32(index)];
                 }
+                //else if (prefix is Indexable)
+                //{
+                //    return (prefix as Indexable)[index];
+                //}
+                //调用索引器
+                else if (prefix is KObject)
+                {
+                    //var args = new Arguments(new List<ASTree>() { new NumberLiteral(new NumToken(-1, index)) });
+                    //return args.Evaluate(env, (prefix as KObject).Read("getter"));
+                    //首先处理基本类型
+                    var getter = prefix.GetType().GetMethod("get_Item");
+                    if (getter != null)
+                    {
+                        /*                
+                        if (prefix is KString)
+                            return (prefix as KString)[index];
+                        */
+                        return getter.Invoke(prefix, new[] { index });
+                    }
+                    else
+                        return Function.Invoke((prefix as KObject).Read("getter"), env, index);
+                }
+                //提供读取.net原生集合的操作
                 else
-                    return Function.Invoke((prefix as KObject).Read("getter"), env, index);
+                {
+                    dynamic collection = prefix;
+                    return Enumerable.ElementAt(collection, Convert.ToInt32(index));
+                }
             }
-            //提供读取.net原生集合的操作
-            else
+            catch
             {
-                dynamic collection = prefix;
-                return Enumerable.ElementAt(collection, Convert.ToInt32(index));
-                //var dic = new Dictionary<string, object>();
-                //HashSet<object> set = new HashSet<object>();
+                throw new KException("bad array access", this, LineNo);
             }
-            throw new KException("bad array access", this, LineNo);
         }
 
         public override string ToString()

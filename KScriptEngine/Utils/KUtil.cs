@@ -22,7 +22,6 @@ namespace KScript
     {
         private static int ParseSingle(object val, int maxLen)
         {
-            if(val == null)
             if (val.GetType().IsValueType)
             {
                 int num = Convert.ToInt32(val);

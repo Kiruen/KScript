@@ -60,6 +60,12 @@ namespace KScript.KSystem.BuiltIn
             elements = new List<object>(f);
         }
 
+        public KList(IEnumerable<object> objs)
+        {
+            //vector.AddRange(obj);
+            elements = objs.ToList();
+        }
+
         public KList(params object[] objs)
         {
             //vector.AddRange(obj);

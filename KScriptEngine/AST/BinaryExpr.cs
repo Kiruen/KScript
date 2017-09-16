@@ -195,14 +195,14 @@ namespace KScript.AST
                     }
                 case "is":
                     {
-                        if(right is ClassInfo) //left is KObject && right is ClassInfo
+                        if(right is ClassInfo)
                         {
                             //var kobj = left as KObject;
                             bool res = API.TypeOf(left) == right;
                             if(left is KObject)
                             {
                                 var kobj = left as KObject;
-                                while (!res && (kobj = kobj.Read("super") as KObject) != null)
+                                while (!res && (kobj = kobj.TryRead("super") as KObject) != null)
                                 {
                                     res |= API.TypeOf(kobj) == right;
                                 }
@@ -256,7 +256,7 @@ namespace KScript.AST
                 right = left;
                 left = temp;
             }
-            var func = (left as KObject)?.Read(olName);
+            var func = (left as KObject)?.TryRead(olName);
             if(func != null)
             {
                 //由于此为常量之间的运算(即使是变量也会先去取得),因此不需要指定调用环境
@@ -269,6 +269,7 @@ namespace KScript.AST
         {
             return Convert.ToDouble(val);
         }
+
         //表示分支结构的选择树(用于三目运算符?:)
         //已弃用,用KTuple代替
         //public class Option

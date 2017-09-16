@@ -16,6 +16,9 @@ namespace KScript.Execution
         StepReturn = 4,
     }
 
+    /// <summary>
+    /// 调试器
+    /// </summary>
     public static class Debugger
     {
         public static Thread TCProgram { get; set; }
@@ -30,8 +33,8 @@ namespace KScript.Execution
         }
 
         public static HashSet<int> BreakPoints { get; set; }
-        public static Stack<string> CallStack { get; set; }
-                                        = new Stack<string>(32);
+        public static Stack<object> CallStack { get; set; }
+                                        = new Stack<object>(32);
 
         public static int DebuggingStackLevel { get; set; }
         public static int StackLevel
@@ -46,11 +49,12 @@ namespace KScript.Execution
         public static void Run(HashSet<int> breakPoints, ThreadStart actions)
         {
             CallStack.Clear();
-            //注意,此变量引用的是text的变量
+            
             WillStepOver = false;
+            Debugging = false;
             DebuggingStackLevel = 1;
             CurrLineNo = 0;
-
+            //注意,此变量引用的是text的变量
             BreakPoints = breakPoints;
             TCProgram = new Thread(actions);
             TCProgram.Start();
@@ -61,10 +65,11 @@ namespace KScript.Execution
             CurrLineNo = lineNo;
             VarTable = env;
             //更新回调
-            OnUpdate(lineNo, env);
+            if(Debugging)
+                OnUpdate(lineNo, env);
         }
 
-        public static void PushFunc(string funcInfo)
+        public static void PushFunc(object funcInfo)
         {
             if (DebuggingStackLevel <= 1024)
             {
@@ -73,7 +78,7 @@ namespace KScript.Execution
                     DebuggingStackLevel = StackLevel;
             }
             else
-                throw new KException("Stack overflow!", 0);
+                throw new KException("Stack overflow!", CurrLineNo);
         }
 
         public static void PopFunc()
@@ -92,6 +97,8 @@ namespace KScript.Execution
                 WillStepOver = true;
                 WillStepIn = false;
                 DebuggingStackLevel = StackLevel;
+                Debugging = true;
+                OnUpdate(CurrLineNo, VarTable);
             }
             //如果期望步入,则更新当前调试层(变为下一层/不变(无函数可步入))
             else if (WillStepIn)
@@ -116,6 +123,7 @@ namespace KScript.Execution
                 {
                     WillStepOver = false;
                     WillStepIn = false;
+                    Debugging = false;
                 }
                 else if (next == Actions.StepIn)
                 {

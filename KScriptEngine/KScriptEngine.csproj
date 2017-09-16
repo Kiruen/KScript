@@ -71,7 +71,7 @@
     <Compile Include="AST\ForStmnt.cs" />
     <Compile Include="AST\IfStmnt.cs" />
     <Compile Include="AST\InstExpr.cs" />
-    <Compile Include="KUtil.cs" />
+    <Compile Include="Utils\KUtil.cs" />
     <Compile Include="Legacy\LinkStmnt.cs" />
     <Compile Include="AST\MatchStmnt.cs" />
     <Compile Include="AST\Modifier.cs" />
@@ -89,9 +89,9 @@
     <Compile Include="AST\WhileStmnt.cs" />
     <Compile Include="Environment\Environment.cs" />
     <Compile Include="Execution\Evaluator.cs" />
-    <Compile Include="KConsole.cs" />
+    <Compile Include="Utils\KConsole.cs" />
     <Compile Include="KException.cs" />
-    <Compile Include="KStdInputStream.cs" />
+    <Compile Include="Utils\KStdInputStream.cs" />
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\PreProcessor.cs" />
     <Compile Include="Lexer\Token.cs" />
@@ -110,12 +110,12 @@
     <Compile Include="System\BuiltIn\KTuple.cs" />
     <Compile Include="System\Callable\NativeMember.cs" />
     <Compile Include="System\ClassInfo.cs" />
-    <Compile Include="KAttribute\MapAttribute.cs" />
+    <Compile Include="KAttribute\MemberMapAttribute.cs" />
     <Compile Include="System\Callable\Function.cs" />
     <Compile Include="System\Callable\IFunction.cs" />
     <Compile Include="System\KObject.cs" />
     <Compile Include="System\BuiltIn\KRegex.cs" />
-    <Compile Include="System\KTimeOut.cs" />
+    <Compile Include="Utils\KTimeOut.cs" />
     <Compile Include="System\BuiltIn\KDict.cs" />
     <Compile Include="System\BuiltIn\KNameSpace.cs" />
     <Compile Include="System\BuiltIn\KBuildIn.cs" />

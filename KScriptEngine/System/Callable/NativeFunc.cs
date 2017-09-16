@@ -76,7 +76,7 @@ namespace KScript.Callable
             catch (Exception exc)
             {
                 throw new KException("bad native function call: " + Name 
-                    + "\nSourceError:\n" + exc.Message, tree, tree.LineNo);
+                    + "\r\nSourceError:\r\n" + exc.Message, tree, tree.LineNo);
             }
         }
 

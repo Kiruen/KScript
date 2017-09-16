@@ -70,7 +70,6 @@ namespace KScript.KSystem
         [MemberMap("clear", MapModifier.Static, MapType.Method)]
         public static void Clear()
         {
-            //Console.Text = "";
             KConsole.Clear();
         }
 
@@ -106,10 +105,7 @@ namespace KScript.KSystem
         [MemberMap("toNumber", MapModifier.Static, MapType.Method)]
         public static double ToNumber(object val)
         {
-            //double result = short.MinValue;
-            //double.TryParse(str.ToString(), out result);
-            //return result;
-            return double.Parse(val.ToString());
+            return Convert.ToDouble(val);
         }
 
         //类型检测函数
