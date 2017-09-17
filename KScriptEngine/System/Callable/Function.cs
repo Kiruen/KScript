@@ -1,4 +1,5 @@
 ﻿using KScript.AST;
+using KScript.Execution;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 namespace KScript.Callable
 {
     //巧用组合模式！只改了三个地方,完美实现了函数重载！
-    public class Function : ICloneable
+    public class Function : IFunction, ICloneable
     {
         public string Name { get; set; }
         public ParameterList Parameters { get; private set; }
@@ -24,10 +25,10 @@ namespace KScript.Callable
         /// </summary>
         /// <param name="i">参数表的长度</param>
         /// <returns></returns>
-        public virtual Function this[int i]
+        public virtual IFunction this[int i]
         {
             get { return this; }
-            protected set { }
+            set { }
         }
 
         //用于创建OLFunc实例(提供无参构造函数)
@@ -77,6 +78,34 @@ namespace KScript.Callable
                 index++;
             }
             return new Function(Name, new ParameterList(paramList), body, outerEnv);
+        }
+
+        public object Invoke(Environment callerEnv, Arguments args)
+        {
+            ParameterList paramsList = Parameters;
+            //创建临时的闭包环境
+            Environment newEnv = CreateNewEnv();
+            //遍历实参(每个参数都可能是一个表达式)列表并计算
+            int index = 0;
+            paramsList.AssertIsLenMatch(args.ChildrenCount, args.LineNo);
+            paramsList.IniVarParams(newEnv/*callerEnv*/);
+            foreach (ASTree ast in args)
+            {
+                //用实参表计算结果,为形参表赋值,放进函数的作用域中
+                //函数实例可以使用这个新的作用域内的刚刚计算好的实参变量
+                var arg = ast.Evaluate(callerEnv);
+                paramsList.Evaluate(newEnv, index++, arg);
+            }
+            //添加隐含对象
+            //newEnv.PutInside("args", )
+            //进入调用堆栈
+            Debugger.PushFunc($"{Name} {Parameters}");
+            //执行方法体
+            object result = Body.Evaluate(newEnv);
+            //从调用堆栈中移除
+            Debugger.PopFunc();
+            //获取临时作用域返回的值并传递到上层
+            return result is SpecialToken ? (result as SpecialToken).Arg : result;
         }
 
         /// <summary>
@@ -131,7 +160,7 @@ namespace KScript.Callable
         public static readonly int POS_OF_VARLEN = 10;
         private Function[] functions = new Function[11];
         //TODO:实现变长参数表
-        public override Function this[int i]
+        public override IFunction this[int i]
         {
             get
             {
@@ -142,7 +171,7 @@ namespace KScript.Callable
                     return functions[POS_OF_VARLEN];
                 return functions[i];
             }
-            protected set { functions[i] = value; }
+            set { functions[i] = (Function)value; }
         }
 
         public OLFunction(params Function[] funcs)
@@ -201,7 +230,7 @@ namespace KScript.Callable
 
         public Function curry(double paramLen, IEnumerable<object> args)
         {
-            var func = this[(int)paramLen];
+            Function func = this[(int)paramLen] as Function;
             return func.curry(args);
         }
     }

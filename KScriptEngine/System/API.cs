@@ -105,7 +105,7 @@ namespace KScript.KSystem
         [MemberMap("toNumber", MapModifier.Static, MapType.Method)]
         public static double ToNumber(object val)
         {
-            return Convert.ToDouble(val);
+            return double.Parse(val.ToString());
         }
 
         //类型检测函数
@@ -118,7 +118,7 @@ namespace KScript.KSystem
             else if (obj.GetType().IsArray)
                 return ClassLoader.GetClass("Arr");
             else if (obj is KObject)
-                return (obj as KObject).Read("type") as ClassInfo;
+                return (obj as KObject).Read<ClassInfo>("type");
             //else if (obj is ClassInfo)
             //    return ClassLoader.GetClass("Type");
             else
@@ -141,9 +141,9 @@ namespace KScript.KSystem
         public static KString ToBig(object num)
         {
             string str_num = num.ToString();
-            if (str_num.Contains("E"))
+            if (str_num.Contains("E") || str_num.Contains("e"))
             {
-                var parts = str_num.Split('.', 'E');
+                var parts = str_num.Split('.', 'E', 'e');
                 int dot, suffix = int.Parse(parts[2]);
                 StringBuilder sb = new StringBuilder(parts[0]);
                 for (dot = 0; dot < suffix; dot++)

@@ -29,70 +29,78 @@ namespace KScript.AST
 
         public override object Evaluate(Environment callerEnv, object prefix)
         {
-            if (prefix is NativeFunc)
-                return InvokeNativeFunc(callerEnv, (NativeFunc)prefix);
-            else if (prefix is Function)
-                return InvokeFunc(callerEnv, (Function)prefix);
+            if (prefix is IFunction)
+            {
+                return (prefix as IFunction)[Length].Invoke(callerEnv, this);
+                //Function func = (prefix as Function)[Length];
+                //return func.Invoke(callerEnv, this);
+            }
+                //return InvokeNativeFunc(callerEnv, (NativeFunc)prefix);
+            //else if (prefix is NativeFunc)
+            //{
+            //    return (prefix as NativeFunc).Invoke(callerEnv, this);
+            //}
+                //return InvokeFunc(callerEnv, (Function)prefix);
             else
                 throw new KException("Not a function object", this, LineNo);
         }
 
-        public object InvokeFunc(Environment callerEnv, Function olfuncs)
-        {
-            //获得对应参数长度的重载版本
-            Function func = olfuncs[Length];
-            ParameterList paramsList = func.Parameters;
-            //创建临时的闭包环境
-            Environment newEnv = func.CreateNewEnv();
-            //遍历实参(每个参数都可能是一个表达式)列表并计算
-            int index = 0;
-            paramsList.AssertIsLenMatch(ChildrenCount, LineNo);
-            paramsList.IniVarParams(callerEnv);
-            foreach (var ast in this)
-            {
-                //用实参表计算结果,为形参表赋值,放进函数的作用域中
-                //函数实例可以使用这个新的作用域内的刚刚计算好的实参变量
-                var arg = ast.Evaluate(callerEnv);
-                paramsList.Evaluate(newEnv, index++, arg);
-            }
-            //添加隐含对象
-            //newEnv.PutInside("args", )
-            //进入调用堆栈
-            Debugger.PushFunc($"{func.Name} {func.Parameters}");
-            //执行方法体
-            object result = func.Body.Evaluate(newEnv);
-            //从调用堆栈中移除
-            Debugger.PopFunc();
-            //获取临时作用域返回的值并传递到上层
-            return result is SpecialToken ? (result as SpecialToken).Arg : result;
-        }
+        //public object InvokeFunc(Environment callerEnv, Function olfuncs)
+        //{
+        //    //获得对应参数长度的重载版本
+        //    Function func = olfuncs[Length];
+        //    ParameterList paramsList = func.Parameters;
+        //    //创建临时的闭包环境
+        //    Environment newEnv = func.CreateNewEnv();
+        //    //遍历实参(每个参数都可能是一个表达式)列表并计算
+        //    int index = 0;
+        //    paramsList.AssertIsLenMatch(ChildrenCount, LineNo);
+        //    paramsList.IniVarParams(callerEnv);
+        //    foreach (ASTree ast in this)
+        //    {
+        //        //用实参表计算结果,为形参表赋值,放进函数的作用域中
+        //        //函数实例可以使用这个新的作用域内的刚刚计算好的实参变量
+        //        var arg = ast.Evaluate(callerEnv);
+        //        paramsList.Evaluate(newEnv, index++, arg);
+        //    }
+        //    //添加隐含对象
+        //    //newEnv.PutInside("args", )
+        //    //进入调用堆栈
+        //    Debugger.PushFunc($"{func.Name} {func.Parameters}");
+        //    //执行方法体
+        //    object result = func.Body.Evaluate(newEnv);
+        //    //从调用堆栈中移除
+        //    Debugger.PopFunc();
+        //    //获取临时作用域返回的值并传递到上层
+        //    return result is SpecialToken ? (result as SpecialToken).Arg : result;
+        //}
 
-        /// <summary>
-        /// 调用原生函数
-        /// </summary>
-        /// <param name="callerEnv"></param>
-        /// <param name="natFunc"></param>
-        /// <returns></returns>
-        public object InvokeNativeFunc(Environment callerEnv, NativeFunc natFunc)
-        {
-            int paramLen = natFunc.ParamsLength;
-            if (Length != paramLen && !natFunc.IsDeferred)
-                throw new KException("bad number of args in invokation", this, LineNo);
-            object[] args = new object[paramLen];
-            int index = 0;
-            foreach(ASTree ast in this)
-            {
-                //计算实参表中的参数,可能又会跑到primary中
-                args[index++] = ast.Evaluate(callerEnv);
-            }
-            //进入调用堆栈
-            Debugger.PushFunc(natFunc.Name);
-            //执行方法体
-            object result = natFunc.Invoke(args, this);
-            //从调用堆栈中移除
-            Debugger.PopFunc();
-            return result;
-        }
+        ///// <summary>
+        ///// 调用原生函数
+        ///// </summary>
+        ///// <param name="callerEnv"></param>
+        ///// <param name="natFunc"></param>
+        ///// <returns></returns>
+        //public object InvokeNativeFunc(Environment callerEnv, NativeFunc natFunc)
+        //{
+        //    int paramLen = natFunc.ParamsLength;
+        //    if (Length != paramLen && !natFunc.IsDeferred)
+        //        throw new KException("bad number of args in invokation", this, LineNo);
+        //    object[] args = new object[paramLen];
+        //    int index = 0;
+        //    foreach(ASTree ast in this)
+        //    {
+        //        //计算实参表中的参数,可能又会跑到primary中
+        //        args[index++] = ast.Evaluate(callerEnv);
+        //    }
+        //    //进入调用堆栈
+        //    Debugger.PushFunc(natFunc.Name);
+        //    //执行方法体
+        //    object result = natFunc.Invoke(args);
+        //    //从调用堆栈中移除
+        //    Debugger.PopFunc();
+        //    return result;
+        //}
 
         public static object Invoke(object func, Environment callerEnv, params object[] args)
         {

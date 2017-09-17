@@ -45,6 +45,10 @@ namespace KScript.AST
         public ClassInfo(ClassStmnt def, Environment outer)
             :this(def.Name, outer)
         {
+            if(def.Name == "BigNum")
+            {
+                ;
+            }
             definition = def;
             //初始化成员(执行成员的定义,隐藏内部维护的成员(以'-'开头的非用户使用字段))
             InitStaticMember(def, outer);
@@ -79,12 +83,7 @@ namespace KScript.AST
                      if (!name.StartsWith("@"))
                          innerEnv.RemoveInside(name);
                      else
-                     {
                          innerEnv.UpdateName(name, name.Substring(1));
-                         //var val = innerEnv.Get(name);
-                         //innerEnv.Remove(name);
-                         //innerEnv.PutNew(name.Substring(1), val);
-                     }
                      return 0;
                  }).ToArray();
             //添加隐含静态成员(一定要最后添加,因为很多对象都需要先进行构建)

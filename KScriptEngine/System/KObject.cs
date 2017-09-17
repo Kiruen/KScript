@@ -55,6 +55,11 @@ namespace KScript
             //return res;
         }
 
+        public TRes Read<TRes>(string member)
+        {
+            return (TRes)Read(member);
+        }
+
         /// <summary>
         /// 试图获取成员,可能返回null.应避免此null和真null混用
         /// </summary>
@@ -64,6 +69,11 @@ namespace KScript
         {
             Environment env = Where(member);
             return env == null ? classInfo?.TryRead(member) : env.Get(member);
+        }
+
+        public TRes TryRead<TRes>(string member)
+        {
+            return (TRes)TryRead(member);
         }
 
         /// <summary>
@@ -79,10 +89,14 @@ namespace KScript
             {
                 //classInfo?.Write(member, value);
                 if (classInfo != null)
+                {
                     classInfo.Write(member, value);
-                throw new KException("bad member access: " + member, Debugger.CurrLineNo);
+                }
+                else
+                {
+                    throw new KException("bad member access: " + member, Debugger.CurrLineNo);
+                }
             }
-                
             else
                 env.PutInside(member, value);
         }
@@ -112,8 +126,11 @@ namespace KScript
 
         public virtual KString ToStr()
         {
-            var func = (TryRead("_str") as Function)?[0];
-            if (func == null) return ToString();
+            var func = (TryRead<Function>("_str"))?[0] as Function;
+            if (func == null)
+            {
+                return ToString();
+            }
             else
             {
                 return func.Invoke(null).ToString();

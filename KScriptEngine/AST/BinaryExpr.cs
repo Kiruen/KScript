@@ -202,7 +202,7 @@ namespace KScript.AST
                             if(left is KObject)
                             {
                                 var kobj = left as KObject;
-                                while (!res && (kobj = kobj.TryRead("super") as KObject) != null)
+                                while (!res && (kobj = kobj.TryRead<KObject>("super")) != null)
                                 {
                                     res |= API.TypeOf(kobj) == right;
                                 }

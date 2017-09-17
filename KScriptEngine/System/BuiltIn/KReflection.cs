@@ -80,20 +80,13 @@ namespace KScript.KSystem.Reflection
 
         public object Invoke(KObject obj, IEnumerable<object> args)
         {
+            var olfuncs = obj.Read<Function>(Name);
             var list = args.Select(arg => new ASTValue(arg))
                            .Cast<ASTree>()
                            .ToList();
-            var func = obj.Read(Name) as Function;
-            //截断参数表
+            //不能截断参数表！因为不确定是哪个重载版本
             var _args = new Arguments(list);    //list.Take(func.ParamsLength).ToList()
-            return _args.Evaluate(OuterEnv, func);
-            //var func = (obj.Read(Name) as Function)[ParamsLength];
-            //var env = func.CreateNewEnv();
-            //for(int i = 0; i < ParamsLength; i++)
-            //{
-            //    func.Parameters.Evaluate(env, i, args.ElementAt(i));
-            //}
-            //func.Body.Evaluate(env);
+            return _args.Evaluate(OuterEnv, olfuncs);
         }
     }
 }

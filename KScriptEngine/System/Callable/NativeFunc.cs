@@ -1,4 +1,5 @@
 ﻿using KScript.AST;
+using KScript.Execution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,16 +7,28 @@ using System.Reflection;
 
 namespace KScript.Callable
 {
-    //脚本系统原生函数
-    public class NativeFunc : NativeMember
+    //C#原生函数代理
+    public class NativeFunc : NativeMember, IFunction
     {
-        public MethodBase Method { get; private set; }
         public int ParamsLength { get; private set; }
 
         /// <summary>
         /// 指眀函数是否为延迟构造的函数(用于某个对象访问非确定的成员)
         /// </summary>
         public bool IsDeferred { get; private set; }
+        public MethodBase Method { get; private set; }
+
+        public IFunction this[int index]
+        {
+            get
+            {
+                return this;
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         protected NativeFunc() { }
 
@@ -39,13 +52,33 @@ namespace KScript.Callable
             IsStatic = isStatic;
         }
 
+        public object Invoke(Environment callerEnv, Arguments argList)
+        {
+            if (argList.Length != ParamsLength && !IsDeferred)
+                throw new KException("bad number of args in invokation", Debugger.CurrLineNo);
+            object[] _args = new object[ParamsLength];
+            int index = 0;
+            foreach (ASTree ast in argList)
+            {
+                //计算实参表中的参数,可能又会跑到primary中
+                _args[index++] = ast.Evaluate(callerEnv);
+            }
+            //进入调用堆栈
+            Debugger.PushFunc(Name);
+            //执行方法体
+            object result = Invoke(_args);
+            //从调用堆栈中移除
+            Debugger.PopFunc();
+            return result;
+        }
+
         /// <summary>
         /// 调用原生函数
         /// </summary>
         /// <param name="tree"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public object Invoke(object[] args, ASTree tree)
+        public object Invoke(params object[] args)
         {
             try
             {
@@ -76,7 +109,7 @@ namespace KScript.Callable
             catch (Exception exc)
             {
                 throw new KException("bad native function call: " + Name 
-                    + "\r\nSourceError:\r\n" + exc.Message, tree, tree.LineNo);
+                    + "\r\nSourceError:\r\n" + exc.Message, Debugger.CurrLineNo);
             }
         }
 
