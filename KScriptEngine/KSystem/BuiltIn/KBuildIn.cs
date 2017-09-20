@@ -17,8 +17,8 @@ namespace KScript.KSystem.BuiltIn
     {
         //储存反复用到的函数反射对象
         //设置为双层字典,因为每个BuiltIn类的派生类都要有一个自己的字典
-        private static Dictionary<string, Dictionary<string, MemberInfo>> globalCache
-                       = new Dictionary<string, Dictionary<string, MemberInfo>>(16);
+        private static Dictionary<string, List<MemberInfo>> globalCache
+                            = new Dictionary<string, List<MemberInfo>>(16);
 
         //不使用静态构造函数,因为无法保证执行顺序(可能需要等到第一次实例化才执行)
         //加载好需要用到的原生函数的Info
@@ -64,11 +64,12 @@ namespace KScript.KSystem.BuiltIn
                 var typeName = typeAttr.MappingName;
                 var cache = globalCache[typeName];
                 //添加普通成员
-                KUtil.AddNatMemberFromMapping(cache, (name, attr, info) =>
+                KUtil.AddNatMemberFromMapping(cache, (m_attr, info) =>
                 {
-                    if (!(info is ConstructorInfo || attr.Modifier == MapModifier.Static))
-                        innerEnv.PutInside(name, NativeMember.Create
-                                                    (name, info, this));
+                    if (!(info is ConstructorInfo || m_attr.Modifier == MapModifier.Static))
+                        AddMember(m_attr.MappingName, NativeMember.Create(m_attr, info, this));
+                        //innerEnv.PutInside(name, NativeMember.Create
+                        //                            (name, info, this));
                 });
                 //添加固有成员
                 this.AddMember("type", ClassLoader.GetOrCreateClass(typeName));
@@ -103,18 +104,18 @@ namespace KScript.KSystem.BuiltIn
             var classInfo = ClassLoader.GetOrCreateClass(typeName);
             if (!globalCache.ContainsKey(typeName))
             {
-                var cache = new Dictionary<string, MemberInfo>(16);
+                var cache = new List<MemberInfo>(16);
                 globalCache.Add(typeName, cache);
                 //注意,这里可能会因为误用重载特性而重复添加成员,待解决
                 //查找映射成员,并添加到缓存中
-                KUtil.FindMapping(type,
-                    (name, memInfo) => cache.Add(name, memInfo));
+                KUtil.FindMapping(type, (m_attr, memInfo)
+                                   => cache.Add(memInfo));
                 //添加静态成员和构造函数
-                KUtil.AddNatMemberFromMapping(cache, (name, attr, info) =>
+                KUtil.AddNatMemberFromMapping(cache, (m_attr, info) =>
                 {
-                    if (info is ConstructorInfo || attr.Modifier == MapModifier.Static)
-                        classInfo.AddMember(name, NativeMember.Create
-                                                   (name, info, null));
+                    if (info is ConstructorInfo || m_attr.Modifier == MapModifier.Static)
+                        classInfo.AddMember(m_attr.MappingName, NativeMember.Create
+                                                   (m_attr, info, null));
                 });
             }
             return classInfo;

@@ -1,4 +1,5 @@
 ﻿using KScript.Execution;
+using KScript.KAttribute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,15 +24,17 @@ namespace KScript.Callable
             Name = name;
         }
 
-        public static NativeMember Create(string name, MemberInfo info, object invoker = null)
+        public static NativeMember Create(MemberMapAttribute attr, MemberInfo info, object invoker = null)
         {
             var m_type = info.MemberType;
             switch (m_type)
             {
                 case MemberTypes.Constructor: case MemberTypes.Method:
-                    return new NativeFunc(name, info as MethodBase, invoker);
+                    {
+                        return new NativeFunc(attr.MappingName, info as MethodBase, attr.IsVarParams, invoker);
+                    }
                 case MemberTypes.Property: case MemberTypes.Field:
-                    return new NativeData(name, info, invoker);
+                    return new NativeData(attr.MappingName, info, invoker);
                 default: throw new KException("Can't create caller with error type", Debugger.CurrLineNo);
             }
         }

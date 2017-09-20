@@ -15,6 +15,7 @@ namespace KScript
         string[] Names { get; }
 
         object Get(string varName);
+        T Get<T>(string varName);
         void Put(string varName, object value);
         void PutInside(string name, object value);
         bool Contains(string varName);
@@ -44,11 +45,12 @@ namespace KScript
         {
             get
             {
-                return Get(varName);
+                return variables[varName];
             }
             set
             {
-                throw new NotImplementedException("未实现环境setter");
+                variables[varName] = varName;
+                //throw new NotImplementedException("未实现环境setter");
             }
         }
 
@@ -72,6 +74,11 @@ namespace KScript
             else
                 throw new KException("Variable: '" + varName + "' is not defined", Debugger.CurrLineNo);
             return value;
+        }
+
+        public T Get<T>(string varName)
+        {
+            return (T)Get(varName);
         }
 
         public void Put(string varName, object value)
@@ -288,6 +295,21 @@ namespace KScript
         }
 
         public void CopyFrom(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Get<T>(string varName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetInside(string varName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T GetInside<T>(string varName)
         {
             throw new NotImplementedException();
         }

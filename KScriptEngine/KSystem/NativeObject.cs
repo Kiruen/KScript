@@ -103,33 +103,33 @@ namespace KScript.AST
             proInfo.SetValue(protoObj, value, null);
         }
 
-        public NativeObject AddNativeFunc(string funcName, string nativeName, params Type[] parames)
-        {
-            try
-            {
-                Type type;
-                //以原对象为调用者
-                object invoker = protoObj;
-                //判断是单例(静态类)还是实例
-                bool isSingleton = protoObj is Type;
-                if (isSingleton)
-                {
-                    type = (Type)protoObj;
-                    invoker = null;
-                }
-                else
-                {
-                    type = protoObj.GetType();
-                }
-                MethodInfo method = type.GetMethod(nativeName, parames);
-                innerEnv.PutInside(funcName, NativeMember.Create(funcName, method, invoker));
-                return this;
-            }
-            catch
-            {
-                throw new KException("Cannot find a native function: " + nativeName, Debugger.CurrLineNo);
-            }
-        }
+        //public NativeObject AddNativeFunc(string funcName, string nativeName, params Type[] parames)
+        //{
+        //    try
+        //    {
+        //        Type type;
+        //        //以原对象为调用者
+        //        object invoker = protoObj;
+        //        //判断是单例(静态类)还是实例
+        //        bool isSingleton = protoObj is Type;
+        //        if (isSingleton)
+        //        {
+        //            type = (Type)protoObj;
+        //            invoker = null;
+        //        }
+        //        else
+        //        {
+        //            type = protoObj.GetType();
+        //        }
+        //        MethodInfo method = type.GetMethod(nativeName, parames);
+        //        innerEnv.PutInside(funcName, NativeMember.Create(funcName, method, invoker));
+        //        return this;
+        //    }
+        //    catch
+        //    {
+        //        throw new KException("Cannot find a native function: " + nativeName, Debugger.CurrLineNo);
+        //    }
+        //}
 
         /// <summary>
         /// 建立附带特性的方法的映射(需要自行为方法设置FuncMap特性,且方法必须是公有的)
@@ -138,10 +138,10 @@ namespace KScript.AST
         {
             var type = protoObj is Type ? protoObj as Type : protoObj.GetType();
             KUtil.FindMapping(type, 
-            (name, methodInfo) =>
+            (m_attr, methodInfo) =>
             {
-                innerEnv.PutInside(name, NativeMember.Create
-                (name, methodInfo, protoObj is Type ? null : protoObj));
+                innerEnv.PutInside(m_attr.MappingName, NativeMember.Create
+                (m_attr, methodInfo, protoObj is Type ? null : protoObj));
             });
             return this;
         }

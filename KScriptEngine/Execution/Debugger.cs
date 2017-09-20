@@ -33,6 +33,7 @@ namespace KScript.Execution
         }
 
         public static HashSet<int> BreakPoints { get; set; }
+                                        = new HashSet<int>();
         public static Stack<object> CallStack { get; set; }
                                         = new Stack<object>(32);
 

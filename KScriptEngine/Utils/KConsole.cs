@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using Microsoft.Win32.SafeHandles;
 
 namespace KScript
 {
@@ -18,6 +20,16 @@ namespace KScript
         private static extern bool AllocConsole();
         [DllImport("kernel32.dll")]
         private static extern bool FreeConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr CreateFile(
+                                  string lpFileName,
+                                  uint dwDesiredAccess,
+                                  uint dwShareMode,
+                                  uint lpSecurityAttributes,
+                                  uint dwCreationDisposition,
+                                  uint dwFlagsAndAttributes,
+                                  uint hTemplateFile);
         [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr GetConsoleWindow();
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -31,18 +43,33 @@ namespace KScript
         private static IntPtr chWnd;
         private static IntPtr xhWnd;
 
+        private const int MY_CODE_PAGE = 437;
+        private const uint GENERIC_WRITE = 0x40000000;
+        private const uint FILE_SHARE_WRITE = 0x2;
+        private const uint OPEN_EXISTING = 0x3;
+
         public static void Show()
         {
             if (!Active)
             {
                 Active = true;
                 AllocConsole();
+
+                //IntPtr stdHandle = CreateFile("CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+                //SafeFileHandle safeFileHandle = new SafeFileHandle(stdHandle, true);
+                //FileStream fileStream = new FileStream(safeFileHandle, FileAccess.Write);
+                //Encoding encoding = System.Text.Encoding.GetEncoding(MY_CODE_PAGE);
+                //StreamWriter standardOutput = new StreamWriter(fileStream, encoding);
+                //standardOutput.AutoFlush = true;
+                //Console.SetOut(standardOutput);
+
                 chWnd = GetConsoleWindow();
                 xhWnd = GetSystemMenu(chWnd, IntPtr.Zero);
                 RemoveMenu(xhWnd, 0xF060, 0x0);
                 Console.ForegroundColor = ConsoleColor.Green;
             }
-            else ShowWindow(chWnd, 1);
+            else
+                ShowWindow(chWnd, 1);
         }
 
         public static void Close()

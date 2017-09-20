@@ -19,7 +19,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="asprise-ocr-api">
-      <HintPath>..\packages\asprise-ocr-api.15.3.1.0\lib\net40\asprise-ocr-api.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -46,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AST\ArgumentList.cs" />
     <Compile Include="AST\Literal\ListLiteral.cs" />
     <Compile Include="AST\ASTLeaf.cs" />
     <Compile Include="AST\ASTList.cs" />
@@ -71,6 +67,8 @@
     <Compile Include="AST\ForStmnt.cs" />
     <Compile Include="AST\IfStmnt.cs" />
     <Compile Include="AST\InstExpr.cs" />
+    <Compile Include="KSystem\BuiltIn\KGenerator.cs" />
+    <Compile Include="KSystem\BuiltIn\KTinyObject.cs" />
     <Compile Include="Utils\KUtil.cs" />
     <Compile Include="Legacy\LinkStmnt.cs" />
     <Compile Include="AST\MatchStmnt.cs" />
@@ -100,37 +98,38 @@
     <Compile Include="Parser\ClassParser.cs" />
     <Compile Include="Parser\FuncParser.cs" />
     <Compile Include="Parser\Parser.cs" />
-    <Compile Include="System\API.cs" />
-    <Compile Include="System\BuiltIn\Indexable.cs" />
+    <Compile Include="KSystem\API.cs" />
+    <Compile Include="KSystem\BuiltIn\Indexable.cs" />
     <Compile Include="Legacy\KForm\KForm.cs" />
-    <Compile Include="System\BuiltIn\KList.cs" />
-    <Compile Include="System\BuiltIn\KDataStream.cs" />
-    <Compile Include="System\BuiltIn\KRange.cs" />
-    <Compile Include="System\BuiltIn\KSet.cs" />
-    <Compile Include="System\BuiltIn\KTuple.cs" />
-    <Compile Include="System\Callable\NativeMember.cs" />
-    <Compile Include="System\ClassInfo.cs" />
+    <Compile Include="KSystem\BuiltIn\KList.cs" />
+    <Compile Include="KSystem\BuiltIn\KDataStream.cs" />
+    <Compile Include="KSystem\BuiltIn\KRange.cs" />
+    <Compile Include="KSystem\BuiltIn\KSet.cs" />
+    <Compile Include="KSystem\BuiltIn\KTuple.cs" />
+    <Compile Include="KSystem\Callable\NativeMember.cs" />
+    <Compile Include="KSystem\ClassInfo.cs" />
     <Compile Include="KAttribute\MemberMapAttribute.cs" />
-    <Compile Include="System\Callable\Function.cs" />
-    <Compile Include="System\Callable\IFunction.cs" />
-    <Compile Include="System\KObject.cs" />
-    <Compile Include="System\BuiltIn\KRegex.cs" />
+    <Compile Include="KSystem\Callable\Function.cs" />
+    <Compile Include="KSystem\Callable\IFunction.cs" />
+    <Compile Include="KSystem\KObject.cs" />
+    <Compile Include="KSystem\BuiltIn\KRegex.cs" />
     <Compile Include="Utils\KTimeOut.cs" />
-    <Compile Include="System\BuiltIn\KDict.cs" />
-    <Compile Include="System\BuiltIn\KNameSpace.cs" />
-    <Compile Include="System\BuiltIn\KBuildIn.cs" />
-    <Compile Include="System\BuiltIn\KString.cs" />
-    <Compile Include="System\Callable\NativeFunc.cs" />
-    <Compile Include="System\NativeObject.cs" />
-    <Compile Include="System\Natives.cs" />
-    <Compile Include="System\BuiltIn\KReflection.cs" />
-    <Compile Include="System\BuiltIn\Singleton\FileProxy.cs" />
-    <Compile Include="System\BuiltIn\Singleton\RegexProxy.cs" />
-    <Compile Include="System\BuiltIn\Singleton\ClassLoader.cs" />
+    <Compile Include="KSystem\BuiltIn\KDict.cs" />
+    <Compile Include="KSystem\BuiltIn\KNameSpace.cs" />
+    <Compile Include="KSystem\BuiltIn\KBuildIn.cs" />
+    <Compile Include="KSystem\BuiltIn\KString.cs" />
+    <Compile Include="KSystem\Callable\NativeFunc.cs" />
+    <Compile Include="KSystem\NativeObject.cs" />
+    <Compile Include="KSystem\Natives.cs" />
+    <Compile Include="KSystem\BuiltIn\KReflection.cs" />
+    <Compile Include="KSystem\BuiltIn\Singleton\FileProxy.cs" />
+    <Compile Include="KSystem\BuiltIn\Singleton\RegexProxy.cs" />
+    <Compile Include="KSystem\BuiltIn\Singleton\ClassLoader.cs" />
     <Compile Include="Legacy\TestNative.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Execution\EvaluatorExt.cs" />
     <Compile Include="Execution\VisionEvaluator.cs" />
+    <Compile Include="Utils\PathManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

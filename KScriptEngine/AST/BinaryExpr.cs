@@ -256,7 +256,8 @@ namespace KScript.AST
                 right = left;
                 left = temp;
             }
-            var func = (left as KObject)?.TryRead(olName);
+            var obj = left as KObject;
+            var func = obj.TryRead(olName);
             if(func != null)
             {
                 //由于此为常量之间的运算(即使是变量也会先去取得),因此不需要指定调用环境

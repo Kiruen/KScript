@@ -39,10 +39,17 @@ namespace KScript.AST
 
         public override int LineNo
         {
-            get
-            {
-                return UNKNOW_LINE;
-            }
+            get { return UNKNOW_LINE; }
+        }
+
+        public override int LowerBound
+        {
+            get { return UNKNOW_LINE; }
+        }
+
+        public override int UpperBound
+        {
+            get { return UNKNOW_LINE; }
         }
 
         public override IEnumerator<ASTree> GetEnumerator()

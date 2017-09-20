@@ -1,5 +1,6 @@
 ﻿using KScript.AST;
 using KScript.Execution;
+using KScript.KSystem.BuiltIn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,11 @@ namespace KScript.Callable
         /// 指眀函数是否为延迟构造的函数(用于某个对象访问非确定的成员)
         /// </summary>
         public bool IsDeferred { get; private set; }
+        public bool IsVarParams { get; private set; }
+
         public MethodBase Method { get; private set; }
 
-        public IFunction this[int index]
+        public virtual IFunction this[int index]
         {
             get
             {
@@ -32,11 +35,12 @@ namespace KScript.Callable
 
         protected NativeFunc() { }
 
-        public NativeFunc(string name, MethodBase method, object invoker = null)
+        public NativeFunc(string name, MethodBase method, bool isVarParams, object invoker = null)
             : base(name, invoker)
         {
             Method = method;
             ParamsLength = method.GetParameters().Length;
+            IsVarParams = isVarParams;
         }
 
         /// <summary>
@@ -54,19 +58,20 @@ namespace KScript.Callable
 
         public object Invoke(Environment callerEnv, Arguments argList)
         {
-            if (argList.Length != ParamsLength && !IsDeferred)
+            if (argList.Length != ParamsLength && !IsVarParams && !IsDeferred)
                 throw new KException("bad number of args in invokation", Debugger.CurrLineNo);
-            object[] _args = new object[ParamsLength];
-            int index = 0;
-            foreach (ASTree ast in argList)
-            {
-                //计算实参表中的参数,可能又会跑到primary中
-                _args[index++] = ast.Evaluate(callerEnv);
-            }
+            //object[] args = new object[argList.Length];
+            //int index = 0;
+            //foreach (ASTree ast in argList)
+            //{
+            //    //计算实参表中的参数,可能又会跑到primary中
+            //    args[index++] = ast.Evaluate(callerEnv);
+            //}
+            object[] args = argList.Select(ast => ast.Evaluate(callerEnv)).ToArray();
             //进入调用堆栈
             Debugger.PushFunc(Name);
             //执行方法体
-            object result = Invoke(_args);
+            object result = Invoke(args);
             //从调用堆栈中移除
             Debugger.PopFunc();
             return result;
@@ -76,9 +81,9 @@ namespace KScript.Callable
         /// 调用原生函数
         /// </summary>
         /// <param name="tree"></param>
-        /// <param name="args"></param>
+        /// <param name="srcArgs"></param>
         /// <returns></returns>
-        public object Invoke(params object[] args)
+        public object Invoke(params object[] srcArgs)
         {
             try
             {
@@ -87,16 +92,17 @@ namespace KScript.Callable
                 //注意！！！调用者可能为空(因为静态方法不需要指定调用者)
                 if (Method == null)
                 {
-                    args = args.Where(arg => arg != null)
+                    srcArgs = srcArgs.Where(arg => arg != null)
                                //.Select(arg => arg is double ? Convert.ToInt32(arg) : arg)
                                .ToArray();
                     var type = IsStatic ? invoker as Type : invoker.GetType();
-                    Method = type.GetMethod(Name, args.Select(arg => arg.GetType())
+                    Method = type.GetMethod(Name, srcArgs.Select(arg => arg.GetType())
                                                       .ToArray());
                 }
                 //调用Method
                 object result = null;
-                args = ConvertArgs(args).ToArray();
+                //将参数转换为原生函数接受的形式(包括可变长参数表的转换)
+                var args = ConvertArgs(srcArgs);
                 if (Method is ConstructorInfo)
                     result = (Method as ConstructorInfo).Invoke(args);
                 else
@@ -113,17 +119,27 @@ namespace KScript.Callable
             }
         }
 
-        private IEnumerable<object> ConvertArgs(object[] args)
+        private object[] ConvertArgs(object[] args)
         {
             var paramList = Method.GetParameters();
-            for(int i = 0; i < paramList.Length; i++)
+            int end = paramList.Length;
+            var temp = new object[end];
+
+            if (IsVarParams)
+            {
+                temp[end - 1] = args.Skip(end - 1).ToArray();
+                end--;
+            }
+            for (int i = 0; i < end; i++)
             {
                 Type ptype = paramList[i].ParameterType,
                                 atype = args[i]?.GetType();
                 if (atype != ptype && !ptype.IsInstanceOfType(args[i]))
-                    yield return Convert.ChangeType(args[i], ptype);
-                else yield return args[i];
+                    temp[i] = Convert.ChangeType(args[i], ptype);
+                else
+                    temp[i] = args[i];
             }
+            return temp;
         }
         //public object Invoke(ASTree tree, params object[] args)
         //{  }
@@ -132,8 +148,45 @@ namespace KScript.Callable
         { return "<native: " + GetHashCode() + ">"; }
     }
 
-    public class OLNativeFunc
+    public class OLNativeFunc : NativeFunc
     {
-        public OLNativeFunc() { }
+        public static readonly int POS_OF_VARLEN = 10;
+        private NativeFunc[] functions = new NativeFunc[11];
+
+        public override IFunction this[int i]
+        {
+            get
+            {
+                if (i > POS_OF_VARLEN)
+                    i = POS_OF_VARLEN;
+                //该位置函数没有重载定义,则转到含变长参数表的函数(可能为null)
+                if (functions[i] == null)
+                    return functions[POS_OF_VARLEN];
+                return functions[i];
+            }
+            set { functions[i] = (NativeFunc)value; }
+        }
+
+        public OLNativeFunc(params NativeFunc[] funcs)
+        {
+            funcs.Select(func => Add(func))
+                 .ToArray();
+        }
+
+        public bool Add(NativeFunc func)
+        {
+            int len = func.ParamsLength;
+            if (func.IsVarParams)
+            {
+                functions[POS_OF_VARLEN] = func;
+                return true;
+            }
+            else if (len < POS_OF_VARLEN)
+            {
+                functions[len] = func;
+                return true;
+            }
+            return false;
+        }
     }
 }

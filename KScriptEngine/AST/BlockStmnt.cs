@@ -71,7 +71,7 @@ namespace KScript.AST
         }
 
         /// <summary>
-        /// 拷贝代码块定义
+        /// 拷贝代码块的定义
         /// </summary>
         /// <returns></returns>
         public override object Clone()

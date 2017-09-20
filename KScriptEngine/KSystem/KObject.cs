@@ -106,8 +106,24 @@ namespace KScript
         /// </summary>
         /// <param name="member"></param>
         /// <param name="value"></param>
+        //public virtual void AddMember(string member, object value)
+        //{
+        //    innerEnv.PutInside(member, value);
+        //}
         public void AddMember(string member, object value)
         {
+            if (value is NativeFunc)
+            {
+                var func = value as NativeFunc;
+                var olfunc = TryRead(member);
+                if (olfunc is OLNativeFunc)
+                {
+                    (olfunc as OLNativeFunc).Add(func);
+                    return;
+                }
+                else
+                    value = new OLNativeFunc(func);
+            }
             innerEnv.PutInside(member, value);
         }
 

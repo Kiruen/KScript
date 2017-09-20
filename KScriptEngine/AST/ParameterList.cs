@@ -29,9 +29,13 @@ namespace KScript.AST
         public string ParamName(int i)
         {
             //return (children[i] as ASTLeaf).Token.Text;
-            var param = Param(i);
-            return ((param.ChildrenCount == 1 ? param[0] : param[1]) 
-                        as ASTLeaf).Text;
+            return ParamName(Param(i));
+        }
+
+        public static string ParamName(ASTree origin)
+        {
+            return ((origin.ChildrenCount == 1 ? origin : origin[1])
+                     as ASTLeaf).Text;
         }
 
         public ASTree Param(int i)
@@ -57,7 +61,7 @@ namespace KScript.AST
             //判断组成此参数的第一个单词是不是修饰符
             if (param[0] is Modifier)
             {
-                var list = env.Get(name) as KList;
+                var list = env.Get<KList>(name);
                 int liIndex = index - Length + 1;
                 if (index >= list.Count)
                     list.Add(value);

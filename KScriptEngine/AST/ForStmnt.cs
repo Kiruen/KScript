@@ -50,7 +50,7 @@ namespace KScript.AST
                     SideEffect.Evaluate(inner);
                 }  
             }
-            throw new KException("Stack overflow!", LineNo);
+            throw new KException("Frame overflow!", LineNo);
         }
 
         //子类new 父类引用子类实例时只能访问到父类的方法

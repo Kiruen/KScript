@@ -180,7 +180,7 @@ namespace KScript
                 }
                 else return obj.GetType().Name;
             }
-            return "";
+            return string.Empty;
         }
 
         public static string ToString(string leftSep, IEnumerable<object> objs, string rightSep, Func<object, string> map = null)
@@ -204,7 +204,7 @@ namespace KScript
         /// </summary>
         /// <param name="type">搜索的类</param>
         /// <param name="action">每次搜索到一个映射函数后执行的动作</param>
-        public static void FindMapping(Type type, Action<string, MemberInfo> action)
+        public static void FindMapping(Type type, Action<MemberMapAttribute, MemberInfo> action)
         {
             var members = type.GetMembers(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);   // | BindingFlags.DeclaredOnly
             foreach (var member in members)
@@ -212,7 +212,7 @@ namespace KScript
                 //寻找此成员的所有特性(多对一映射,可以保留旧的API)
                 foreach(var attr in member.GetCustomAttributes<MemberMapAttribute>())
                 {
-                    action(attr.MappingName, member);
+                    action(attr, member);
                 }
                 //var attr = member.GetCustomAttribute(typeof(MemberMapAttribute))
                 //                                          as MemberMapAttribute;
@@ -226,11 +226,11 @@ namespace KScript
         /// </summary>
         /// <param name="infoCache">反射信息缓存集</param>
         /// <param name="action">每获取到一个对象时的操作</param>
-        public static void AddNatMemberFromMapping(IDictionary<string, MemberInfo> infoCache, Action<string, MemberMapAttribute, MemberInfo> action)
+        public static void AddNatMemberFromMapping(IList<MemberInfo> infoCache, Action<MemberMapAttribute, MemberInfo> action)
         {
             foreach (var info in infoCache)
             {
-                action(info.Key, info.Value.GetCustomAttribute<MemberMapAttribute>(), info.Value);
+                action(info.GetCustomAttribute<MemberMapAttribute>(), info);
             }
         }
     }

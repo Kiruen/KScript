@@ -43,12 +43,13 @@ namespace KScript.AST
             var newFunc = new Function(Name, Parameters, Body, env);
             if (env.Contains(totalName))
             {
-                var olFunc = env.Get(totalName) as OLFunction;
+                //可能存在命名上与原生函数的冲突
+                var olFunc = env.Get<OLFunction>(totalName);
                 if (olFunc != null)
                     olFunc.Add(newFunc);
                 //存在原生函数,则不覆盖,而是添加到主命名空间中
                 else
-                    (env.Get("main") as KNameSpace)
+                    env.Get<KNameSpace>("main")
                         ?.AddMember(totalName, new OLFunction(newFunc));
             }
             else

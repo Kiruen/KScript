@@ -106,12 +106,12 @@ namespace KScript.KSystem
                 if (attr.MapType == MapType.ToolClass) //attr == null || 
                 {
                     KUtil.FindMapping(type,
-                      (name, memdInfo) =>
+                      (m_attr, memdInfo) =>
                       {
-                          var natMember = NativeMember.Create(name, memdInfo);
-                              //env.PutInside(name, natMember);
-                              //向命名空间对象中添加该成员
-                              knamespace?.AddMember(name, natMember);
+                          var natMember = NativeMember.Create(m_attr, memdInfo);
+                          //env.PutInside(name, natMember);
+                          //向命名空间对象中添加该成员
+                          knamespace?.AddMember(m_attr.MappingName, natMember);
                       });
                 }
                 //结构型模块(有自定义的内建类)
@@ -123,20 +123,20 @@ namespace KScript.KSystem
             }
         }
 
-        public static void LoadNativeFunc(Environment env, string funcName, Type ownerType,
-                                           string nativeName, params Type[] parames)
-        {
-            MethodInfo method = null;
-            try
-            {
-                method = ownerType.GetMethod(nativeName, parames);
-                env.PutInside(funcName, NativeMember.Create(funcName, method));
-            }
-            catch
-            {
-                throw new KException("Cannot find a native function: " + nativeName, Debugger.CurrLineNo);
-            }
-        }
+        //public static void LoadNativeFunc(Environment env, string funcName, Type ownerType,
+        //                                   string nativeName, params Type[] parames)
+        //{
+        //    MethodInfo method = null;
+        //    try
+        //    {
+        //        method = ownerType.GetMethod(nativeName, parames);
+        //        env.PutInside(funcName, NativeMember.Create(funcName, method));
+        //    }
+        //    catch
+        //    {
+        //        throw new KException("Cannot find a native function: " + nativeName, Debugger.CurrLineNo);
+        //    }
+        //}
 
         public static NativeObject AddNativeObj(Environment env, string objName, object proto)
         {

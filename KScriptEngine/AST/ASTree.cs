@@ -23,8 +23,11 @@ namespace KScript.AST
             get { return this is ASTList && ChildrenCount == 0; }
         }
 
-        public abstract int ChildrenCount { get; }
+        public abstract int LowerBound { get; }
+        public abstract int UpperBound { get; }
         public abstract int LineNo { get; }
+
+        public abstract int ChildrenCount { get; }
         public abstract IEnumerable<ASTree> Children { get; }
         public abstract ASTree this[int i] { get; }
         public abstract IEnumerator<ASTree> GetEnumerator();

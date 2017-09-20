@@ -33,6 +33,18 @@ namespace KScript.AST
             get { return children; }
         }
 
+        public override int LowerBound
+        {
+            get { return children.Where(ast => !ast.IsEmpty)
+                                .Select(ast => ast.LowerBound).Min(); }
+        }
+
+        public override int UpperBound
+        {
+            get { return children.Where(ast => !ast.IsEmpty)
+                                .Select(ast => ast.UpperBound).Max(); }
+        }
+
         public override ASTree this[int i]
         {
             get { return children[i]; }

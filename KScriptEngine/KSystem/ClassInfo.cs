@@ -60,14 +60,14 @@ namespace KScript.AST
             Methods = innerEnv.Names
                      .Where(n => !n.StartsWith("-"))
                      .Where(n => innerEnv.Get(n) is Function)
-                     .SelectMany(n => innerEnv.Get(n) as OLFunction,
+                     .SelectMany(n => innerEnv.Get<OLFunction>(n),
                       (n, func) => new KMethodInfo(n, func as Function, outer))
                      .ToArray();
             //完善构造函数(注意！这里只是改变Body的内容,因为此处
             //的Body和defstamnt共用一个body
             if (innerEnv.Contains(Name))
             {
-                (innerEnv.Get(Name) as OLFunction)
+                innerEnv.Get<OLFunction>(Name)
                 .Select(cons => cons.Body.InsertCode("return this;"))
                 .ToArray();
                 innerEnv.UpdateName(Name, "_cons");
@@ -115,11 +115,6 @@ namespace KScript.AST
 
             Body.IniForClassInfo(innerEnv);
         }
-
-        //public bool HasStaticMember(string mbName)
-        //{
-        //    return innerEnv.Contains(mbName);
-        //}
 
         public KMethodInfo GetMethodInfo(KString methodName)
         {

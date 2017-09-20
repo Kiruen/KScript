@@ -32,12 +32,14 @@ namespace KScript.KAttribute
         public string MappingName { get; private set; }
         public MapModifier Modifier { get; private set; }
         public MapType MapType { get; private set; }
+        public bool IsVarParams { get; private set; }
 
-        public MemberMapAttribute(string mappingName, MapModifier mod, MapType mapType)
+        public MemberMapAttribute(string mappingName, MapModifier mod, MapType mapType, bool isVarParams = false)
         {
             MappingName = mappingName;
             Modifier = mod;
             MapType = mapType;
+            IsVarParams = isVarParams;
         }
     }
 }

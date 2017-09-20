@@ -183,19 +183,19 @@ namespace KScript.AST
                 //上面两句位置一定不能对调！
                 innerEnv.PutInside("super", super);          //仿照js的prototype模式
             }
-            info.Body.Evaluate(innerEnv);                 //会向当前环境里添加变量、函数实例等
+            info.Body.Evaluate(innerEnv);                   //会向当前环境里添加变量、函数实例等
             //向类定义中附加一份内部构造函数,以供子类调用
             var init = new OLFunction();
             innerEnv.PutInside("_init", init);
             if (innerEnv.Contains(info.Name))
             {
-                (innerEnv.Get(info.Name) as OLFunction)
+                //将原先构造器的所有重载版本放入新的init对象中
+                innerEnv.Get<OLFunction>(info.Name)
                 .Select(cons => init.Add(cons.Clone() as Function))
                 .ToArray();
                 //改变构造器名称(防止跟类名重复)
                 innerEnv.UpdateName(info.Name, "_cons");
             }
-
             return kobj;
         }
 

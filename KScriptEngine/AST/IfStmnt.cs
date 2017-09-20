@@ -10,18 +10,16 @@ namespace KScript.AST
         public IfStmnt(List<ASTree> c) : base(c) { }
         public ASTree Condition { get { return this[0]; } }
         public ASTree ThenBlock { get { return this[1]; } }
-        //else ifs can't express
+        /*else ifs can't express*/
         public ASTree OtherBlock
         {
-            get {
+            get
+            {
                 int last = ChildrenCount - 1;
                 return children[last] is BlockStmnt ? this[last] : null;
             }
         }
-        //public ASTree OtherBlock
-        //{
-        //    get { return this[ChildrenCount - 1]; } //ChildrenCount > 2 ? * : null;
-        //}
+
         public override object Evaluate(Environment ev)
         {
             object conRes = Condition.Evaluate(ev);

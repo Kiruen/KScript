@@ -25,6 +25,16 @@ namespace KScript.AST
             get  { return Token.LineNo; }
         }
 
+        public override int LowerBound
+        {
+            get { return LineNo; }
+        }
+
+        public override int UpperBound
+        {
+            get { return LineNo; }
+        }
+
         public override ASTree this[int i]
         {
             get { return this; }

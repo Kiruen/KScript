@@ -8,9 +8,6 @@ F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScriptDemo\KScriptEngi
 F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScriptDemo\KScriptEngine\obj\Debug\KScriptEngine.csprojResolveAssemblyReference.cache
 F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\bin\Debug\KScriptEngine.dll
 F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\bin\Debug\KScriptEngine.pdb
-F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\bin\Debug\asprise-ocr-api.dll
-F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\bin\Debug\asprise-ocr-api.pdb
-F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\bin\Debug\asprise-ocr-api.xml
 F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\obj\Debug\KScriptEngine.dll
 F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\obj\Debug\KScriptEngine.pdb
-F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\obj\Debug\KScriptEngine.csprojResolveAssemblyReference.cache
+F:\Backup\backup\Code Warehouse\Projects\VS2015 Projects\KScript\KScriptEngine\obj\Debug\KScriptEngine.csproj.CoreCompileInputs.cache
