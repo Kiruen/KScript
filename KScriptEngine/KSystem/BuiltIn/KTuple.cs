@@ -31,21 +31,19 @@ namespace KScript.KSystem.BuiltIn
             {
                 return IndexParser.GetElementAt(index, Count, (i) => elements[i],
                                 elements, (ienum) => new KTuple(ienum.ToArray()));
-                //var res = IndexParser.ParseIndex(index, Count);
-                //int start = res.Item1, len = res.Item2, step = res.Item3;
-                //if (len == 0)
-                //    return elements[start];
-                //else if (step == 1)
-                //    return new KTuple(elements.Skip(start).Take(len).ToArray());
-                //else
-                //{
-                //    return new KTuple(elements.Skip(start)
-                //                              .Take(len)
-                //                              .Where((x, i) => i % step == 0)
-                //                              .ToArray());
-                //}
             }
             set { throw new KException("Can't change an invariable object!", Debugger.CurrLineNo); }
+        }
+
+        public KTuple(object obj1, object obj2)
+        {
+            var list = new List<object>();
+            if (obj1 is KTuple)
+                list.AddRange((obj1 as KTuple).elements);
+            else
+                list.Add(obj1);
+            list.Add(obj2);
+            elements = list.ToArray();
         }
 
         public KTuple(params object[] objs)

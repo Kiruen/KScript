@@ -42,6 +42,12 @@ namespace KScript.KSystem.BuiltIn
             return new KGenerator(elements.Reverse());
         }
 
+        [MemberMap("zip", MapModifier.Instance, MapType.Method)]
+        public KGenerator Zip(IEnumerable<object> second, Function selector)
+        {
+            return new KGenerator(elements.Zip(second, (x, y)=> selector.Invoke(null, x, y)));
+        }
+
         [MemberMap("toList", MapModifier.Instance, MapType.Method)]
         public KList ToList()
         {

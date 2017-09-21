@@ -26,14 +26,7 @@ namespace KScript.KSystem.BuiltIn
         {
             get
             {
-
                 return IndexParser.GetElementAt(index, Length, val);
-                //var res = IndexParser.ParseIndex(index, Length);
-                //int start = res.Item1, len = res.Item2;
-                //if (len == 0)
-                //    return val[start].ToString();
-                //else
-                //    return SubString(start, len);
             }
         }
 

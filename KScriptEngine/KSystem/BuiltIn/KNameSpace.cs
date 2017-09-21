@@ -32,10 +32,10 @@ namespace KScript.KSystem.BuiltIn
             get { return realEnv.Names.Union(innerEnv.Names).ToArray(); }
         }
 
-        public KNameSpace(Environment env, string name) 
-            : base(env)
+        public KNameSpace(string name, Environment realEnv) 
+            : base(realEnv)
         {
-            realEnv = env;
+            this.realEnv = realEnv;
             Name = name;
             //innerEnv.PutInside("type", ClassLoader.GetClass("Namespace"));
         }

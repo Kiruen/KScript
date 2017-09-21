@@ -32,20 +32,6 @@ namespace KScript.KSystem.BuiltIn
             {
                 return IndexParser.GetElementAt(index, Count, (i) => elements[i], 
                                 elements, (ienum) => new KList(ienum.ToArray()));
-                //var res = IndexParser.ParseIndex(index, Count);
-                //int start = res.Item1, len = res.Item2, step = res.Item3;
-                //if (len == 0)
-                //    return elements[start];
-                //else if(step == 1)
-                //    return new KList(elements.Skip(start).Take(len).ToArray());
-                //else
-                //{
-                //    return new KList(elements.Skip(start)
-                //                             .Take(len)
-                //                             //可使用提供索引值的func
-                //                             .Where((x, i) => i % step == 0)
-                //                             .ToArray());
-                //}
             }
             set
             {
@@ -72,14 +58,16 @@ namespace KScript.KSystem.BuiltIn
             elements = objs.ToList();
         }
 
-        [MemberMap("add", MapModifier.Instance, MapType.Method)]
-        public void Add(object obj)
+        [MemberMap("add", MapModifier.Instance, MapType.Method, true)]
+        public void Add(object obj, params object[] objs)
         {
             elements.Add(obj);
+            if(objs.Length > 0)
+                elements.AddRange(objs);
         }
 
-        [MemberMap("addSome", MapModifier.Instance, MapType.Method)]
-        public void AddSome(object obj)
+        [MemberMap("addRange", MapModifier.Instance, MapType.Method)]
+        public void AddRange(object obj)
         {
             if(obj is KList)
             {
@@ -111,6 +99,19 @@ namespace KScript.KSystem.BuiltIn
         public void Sort(Function comp)
         {
             Sort(this, comp);
+        }
+
+        [MemberMap("shuffle", MapModifier.Instance, MapType.Method)]
+        public void Shuffle()
+        {
+            Random ran = new Random();
+            for (int i = 0; i < elements.Count; i++)
+            {
+                int j = ran.Next(0, elements.Count);
+                object temp = elements[i];
+                elements[i] = elements[j];
+                elements[j] = temp;
+            }
         }
 
         [MemberMap("_add", MapModifier.Instance, MapType.Method)]
@@ -149,7 +150,7 @@ namespace KScript.KSystem.BuiltIn
             var temp = new KList();
             for(int i = 0; i < time; i++)
             {
-                temp.AddSome(this);
+                temp.AddRange(this);
             }
             return temp;
         }
