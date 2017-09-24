@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace KScript.KSystem
 {
-    [MemberMap("KAPI", MapModifier.Static, MapType.ToolClass)]
+    [MemberMap("StdLib", MapModifier.Static, MapType.ToolClass)]
     public static class API
     {
         private static Random random = new Random(12);
@@ -26,8 +26,8 @@ namespace KScript.KSystem
             Thread.Sleep(time);
         }
 
-        [MemberMap("write", MapModifier.Static, MapType.Method)]
-        public static void Write(object obj = null)
+        [MemberMap("write", MapModifier.Static, MapType.Method, true)]
+        public static void Write(params object[] obj)
         {
             //Console.Text += obj + "";
             //Console.Select(Console.Text.Length, Console.Text.Length);
@@ -35,8 +35,8 @@ namespace KScript.KSystem
             KConsole.Write(obj);
         }
 
-        [MemberMap("print", MapModifier.Static, MapType.Method)]
-        public static void WriteLine(object obj = null)
+        [MemberMap("print", MapModifier.Static, MapType.Method, true)]
+        public static void WriteLine(params object[] obj)
         {
             //Console.Text += obj + "\r\n";
             //Console.Select(Console.Text.Length, Console.Text.Length);
@@ -101,6 +101,12 @@ namespace KScript.KSystem
             return random.Next((int)min, (int)max);
         }
 
+        [MemberMap("random", MapModifier.Static, MapType.Method)]
+        public static double Random()
+        {
+            return random.NextDouble();
+        }
+
         [MemberMap("toNum", MapModifier.Static, MapType.Method)]
         [MemberMap("toNumber", MapModifier.Static, MapType.Method)]
         public static double ToNumber(object val)
@@ -109,7 +115,7 @@ namespace KScript.KSystem
         }
 
         //类型检测函数
-        [MemberMap("type", MapModifier.Static, MapType.Method)]
+        [MemberMap("typeof", MapModifier.Static, MapType.Method)]
         public static ClassInfo TypeOf(object obj)
         {
             if (obj == null) return ClassLoader.GetClass("None");

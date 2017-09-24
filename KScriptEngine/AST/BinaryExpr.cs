@@ -107,12 +107,12 @@ namespace KScript.AST
         {
             //为什么会有无效的转换？反射得到的值到底是什么类型的？↓
             //其实是因为未进行拆箱操作,需要:obj->double->int
-            if (op != ":" && left != null && right != null
-                && left.GetType().IsValueType && right.GetType().IsValueType)
+            if (/*op != ":" && */left != null && right != null &&
+                left.GetType().IsValueType && right.GetType().IsValueType)
                 return ComputeNum(Convert.ToDouble(left), op, Convert.ToDouble(right));
             else if (op == "+" && (left is KString || right is KString))
-                return new KString
-                    (KUtil.ToString(left) + KUtil.ToString(right));
+                return KString.Instance
+                        (KUtil.ToString(left) + KUtil.ToString(right));
             else if (op == "==" || op == "!=")
             {
                 bool eq = op.Equals("==");
@@ -127,7 +127,7 @@ namespace KScript.AST
                 double len = Convert.ToDouble(right), count = 0;
                 while (count++ < len)
                     result.Append(left);
-                return new KString(result);
+                return KString.Instance(result);
             }
             //TODO:实现运算符重载
             else
@@ -144,6 +144,7 @@ namespace KScript.AST
                 case "*": return left * right;
                 case "/": return left / right; // /0 will throw an exception
                 case "%": return left % right;
+                case ":": return new KTuple(left, right);
                 case "&": return (int)left & (int)right;
                 case "|": return (int)left | (int)right;
                 case "^": return (int)left ^ (int)right;

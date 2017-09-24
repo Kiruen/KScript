@@ -16,7 +16,7 @@ namespace KScript.AST
 
         public override object Evaluate(Environment env)
         {
-            return new KString(Value);
+            return KString.Instance(Value);
         }
 
         public override string ToString()
@@ -43,7 +43,7 @@ namespace KScript.AST
                 if (res == null) res = "None";
                 source.Replace(match.Value, KUtil.ToString(res));
             }
-            return new KString(source);
+            return KString.Instance(source);
         }
     }
 

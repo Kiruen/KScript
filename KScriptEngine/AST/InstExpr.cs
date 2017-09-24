@@ -93,7 +93,7 @@ namespace KScript.AST
                 {
                     NestedEnv moduleEnv = new NestedEnv();
                     (env as NestedEnv).InsertEnv(moduleEnv);
-                    knamespace = new KNameSpace(moduleEnv, moduleName);
+                    knamespace = new KNameSpace(moduleName, moduleEnv);
                     //初始化模块作用域,提供模块初始化必备的数据
                     EngineInitor.Initial(moduleEnv);
                     var eval = new Evaluator(File.ReadAllText(path));
@@ -104,7 +104,7 @@ namespace KScript.AST
                 }
                 else
                 {
-                    knamespace = new KNameSpace(env, moduleName);
+                    knamespace = new KNameSpace(moduleName, env);
                     path = Path.Combine(KPath.MoudleRoot, moduleName, moduleName + ".dll");
                     //加载拓展框架
                     EngineInitor.LoadNativeModule(knamespace, path);
@@ -134,9 +134,9 @@ namespace KScript.AST
             return null;
         }
 
-        public static void Throw(ASTree ast, Environment env, int loc) 
+        public static void Throw(ASTree ast, Environment env, int loc)
         {
-                throw new KException(ast.Evaluate(env).ToString(), ast.LineNo);
+            throw new KException(ast.Evaluate(env).ToString(), ast.LineNo);
         }
 
         public static object Assert(ASTree ast, Environment env, int loc)

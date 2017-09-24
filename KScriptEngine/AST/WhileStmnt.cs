@@ -7,9 +7,10 @@ namespace KScript.AST
 {
     public class WhileStmnt : ASTList
     {
-        public WhileStmnt(List<ASTree> list) : base(list) { }
-        public ASTree Condition { get { return this[0]; }  }
+        public ASTree Condition { get { return this[0]; } }
         public ASTree Body { get { return this[1]; } }
+
+        public WhileStmnt(List<ASTree> list) : base(list) { }
 
         public override object Evaluate(Environment ev)
         {

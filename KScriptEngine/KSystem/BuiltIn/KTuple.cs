@@ -48,15 +48,6 @@ namespace KScript.KSystem.BuiltIn
 
         public KTuple(params object[] objs)
         {
-            //var list = new List<object>();
-            //foreach (var obj in objs)
-            //{
-            //    if (obj is KTuple)
-            //        list.AddRange((obj as KTuple).elements);
-            //    else
-            //        list.Add(obj);
-            //}
-            //elements = list.ToArray();
             elements = objs;
         }
 

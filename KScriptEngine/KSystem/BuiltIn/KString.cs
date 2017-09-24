@@ -14,8 +14,9 @@ namespace KScript.KSystem.BuiltIn
     [MemberMap("Str", MapModifier.Static, MapType.CommonClass)]
     public class KString : KBuiltIn, IEnumerable<KString>
     {
-        //private static Dictionary<string, MethodInfo> funcCache
-        //    = new Dictionary<string, MethodInfo>(16);
+        private static Dictionary<string, KString> strPool
+                        = new Dictionary<string, KString>(16);
+
         private readonly string val;
         public int Length
         {
@@ -37,9 +38,8 @@ namespace KScript.KSystem.BuiltIn
         //        (name, methodInfo) => funcCache.Add(name, methodInfo));
         //}
 
-
         //创建一个自封闭的对象内环境(考虑到内建类不依赖外部环境的变量)
-        public KString(object val = null)
+        private KString(object val = null)
             //: base(new NestedEnv())
         {
             this.val = val == null ? "" : val.ToString();
@@ -49,7 +49,7 @@ namespace KScript.KSystem.BuiltIn
             //innerEnv.PutInside("type", ClassLoader.GetClass("Str"));
         }
 
-        public KString(char[] chars)
+        private KString(char[] chars)
             :this(new string(chars))
         { }
 
@@ -70,7 +70,15 @@ namespace KScript.KSystem.BuiltIn
         [MemberMap("split", MapModifier.Instance, MapType.Method)]
         public KString[] Split(KString sep)
         {
-            return val.Split(sep.val.ToCharArray())
+            return SplitMany(sep);
+        }
+
+        [MemberMap("split", MapModifier.Instance, MapType.Method, true)]
+        public KString[] SplitMany(params object[] seps)
+        {
+            return val.Split(seps.Cast<KString>()
+                            .Select(s => s.val).ToArray(),
+                        StringSplitOptions.None)  //sep.val.ToCharArray()
                       .Select(v => new KString(v))
                       .ToArray();
         }
@@ -192,9 +200,23 @@ namespace KScript.KSystem.BuiltIn
             return new KString(str);
         }
 
+        //字符串池机制
         public static KString Instance(object val)
         {
-            return new KString(val);
+            var key = val.ToString();
+            if (!strPool.ContainsKey(key))
+            {
+                KString res = new KString(key);
+                strPool.Add(key, res);
+                return res;
+            }
+            return strPool[key];
+            //return new KString(val);
+        }
+
+        public static KString Instance(char[] chars)
+        {
+            return Instance(new string(chars));
         }
     }
 }

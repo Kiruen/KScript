@@ -17,6 +17,9 @@ namespace KScript.Callable
         /// 指眀函数是否为延迟构造的函数(用于某个对象访问非确定的成员)
         /// </summary>
         public bool IsDeferred { get; private set; }
+        /// <summary>
+        /// 指明函数的参数表是否为(含有)可变参数表
+        /// </summary>
         public bool IsVarParams { get; private set; }
 
         public MethodBase Method { get; private set; }
@@ -52,7 +55,7 @@ namespace KScript.Callable
             : base(name, invoker)
         {
             IsDeferred = true;
-            ParamsLength = 5;
+            ParamsLength = 1024;
             IsStatic = isStatic;
         }
 
@@ -60,13 +63,6 @@ namespace KScript.Callable
         {
             if (argList.Length != ParamsLength && !IsVarParams && !IsDeferred)
                 throw new KException("bad number of args in invokation", Debugger.CurrLineNo);
-            //object[] args = new object[argList.Length];
-            //int index = 0;
-            //foreach (ASTree ast in argList)
-            //{
-            //    //计算实参表中的参数,可能又会跑到primary中
-            //    args[index++] = ast.Evaluate(callerEnv);
-            //}
             object[] args = argList.Select(ast => ast.Evaluate(callerEnv)).ToArray();
             //进入调用堆栈
             Debugger.PushFunc(Name);
@@ -107,10 +103,8 @@ namespace KScript.Callable
                     result = (Method as ConstructorInfo).Invoke(args);
                 else
                     result = Method.Invoke(invoker, args);
-                //返回类型转换
-                if (result != null && result.GetType().IsValueType)
-                    result = Convert.ToDouble(result);
-                return result;
+
+                return ConvertRet(result);
             }
             catch (Exception exc)
             {
@@ -122,15 +116,15 @@ namespace KScript.Callable
         private object[] ConvertArgs(object[] args)
         {
             var paramList = Method.GetParameters();
-            int end = paramList.Length;
-            var temp = new object[end];
-
+            int plen = paramList.Length;
+            var temp = new object[plen];
+            
             if (IsVarParams)
             {
-                temp[end - 1] = args.Skip(end - 1).ToArray();
-                end--;
+                temp[plen - 1] = args.Skip(plen - 1).ToArray();
+                plen--;
             }
-            for (int i = 0; i < end; i++)
+            for (int i = 0; i < plen; i++)
             {
                 Type ptype = paramList[i].ParameterType,
                                 atype = args[i]?.GetType();
@@ -141,8 +135,17 @@ namespace KScript.Callable
             }
             return temp;
         }
-        //public object Invoke(ASTree tree, params object[] args)
-        //{  }
+
+        private object ConvertRet(object result)
+        {
+            if (result == null) return null;
+            //返回类型转换
+            else if (result.GetType().IsValueType)
+                return Convert.ToDouble(result);
+            else if (result is string)
+                return (KString)(result as string);
+            return result;
+        }
 
         public override string ToString()
         { return "<native: " + GetHashCode() + ">"; }

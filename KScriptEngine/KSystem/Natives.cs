@@ -21,7 +21,7 @@ namespace KScript.KSystem
             //LoadNativeFuncs(env);
             LoadNativeObjs(env);
             //加载基础API
-            var apinsp = new KNameSpace(new NestedEnv(), "API");
+            var apinsp = new KNameSpace("API", new NestedEnv());
             LoadNativeTypes(apinsp, new[] { typeof(API) });
             apinsp.DumpInto(env);
         }
