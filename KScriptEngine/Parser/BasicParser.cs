@@ -6,7 +6,7 @@ using Operators = KScript.Parser.Operators;
 namespace KScript
 {
     /// <summary>
-    /// 基于组合子的可配置简易语法分析器(体现了初等的函数式编程思维)
+    /// 基于组合子的可配置简易语法分析器(体现了初等的函数式编程思维和流畅接口思想)
     /// </summary>
     public class BasicParser
     {
@@ -18,7 +18,7 @@ namespace KScript
                 "}", Token.EOL, "if", "else", "other", "for", "foreach",
                 "in", "match", "when", "while", "@", "*",
                 "try", "catch", "default", "extends", "class", "var", "def",
-                "tup", "dict", "set"
+                "tup", /*"dict", "set"*/
             };
 
         public readonly static string[]

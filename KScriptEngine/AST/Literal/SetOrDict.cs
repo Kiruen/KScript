@@ -15,9 +15,14 @@ namespace KScript.AST
             //为什么先addtoken然后ast,当后面的值表为单组表达式时,不会
             //保留单组表达式的ASTList,而不像那样做,就会保留??
             //还在纳闷为什么不能用拓展方法呢。。原来是没有使用Linq命名空间
-            return new KDict(children
-                .Select(expr => expr.Evaluate(env) as KTuple)
-                .ToDictionary(tuple => tuple[0], tuple => tuple[1]));
+            if (children.Count > 0 && children[0].ToString().Contains(":"))
+                return new KDict(children
+                    .Select(expr => expr.Evaluate(env) as KTuple)
+                    .ToDictionary(tuple => tuple[0], tuple => tuple[1]));
+            else
+                return new KSet(children.Select
+                        (expr => expr.Evaluate(env)));
+
             //KDict dict = new KDict();
             ////获取字典构造体
             //var body = children[0];

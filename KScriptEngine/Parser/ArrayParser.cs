@@ -20,8 +20,11 @@ namespace KScript   //.Parser 类名与命名空间重名！
             //                .Rep(rule0().Sep(",").Ast(expr));
             var list = rule0().Sep("[").Maybe(TokenList(typeof(ListLiteral), expr)).Sep("]");
             var tuple = rule0().Sep("tup").Sep("(").Maybe(TokenList(typeof(TupleLiteral), expr)).Sep(")");
-            var dict = rule0().Sep("dict").Sep("{").Maybe(TokenList(typeof(DictLiteral), expr)).Sep("}");
-            var set = rule0().Sep("set").Sep("{").Maybe(TokenList(typeof(SetLiteral), expr)).Sep("}");
+
+            var dict = rule0()/*.Sep("dict")*/.Sep("{").Maybe(TokenList(typeof(DictLiteral), expr)).Sep("}");
+            //var set = rule0().Sep("set").Sep("{").Maybe(TokenList(typeof(SetLiteral), expr)).Sep("}");
+
+
             //kvpair = rule(typeof(Pair)).Ast(expr).Sep(":").Ast(expr);
             //kvpairs = rule0().Ast(kvpair).Rep(rule0().Sep(",").Ast(kvpair));
             //var dict = rule(typeof(Dict)).Sep("dict").Sep("{")
@@ -29,8 +32,10 @@ namespace KScript   //.Parser 类名与命名空间重名！
 
             //var dict = rule(typeof(Dict)).Sep("dict").Sep("{")
             //                  .Rep(rule0().Ast(expr).Sep(",")).Sep("}");
+
+
             primary.InsertChoice(dict);
-            primary.InsertChoice(set);
+            //primary.InsertChoice(set);
             primary.InsertChoice(list);
             primary.InsertChoice(tuple);
             postfix.InsertChoice(rule(typeof(ArrayRef))
