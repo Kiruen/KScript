@@ -35,8 +35,8 @@ namespace KScript.AST
                 case "new": return InstFactory.Malloc(MainArg, env);
                 case "using": return InstFactory.Using(MainArg, DeputyArg, env);
                 case "del": return InstFactory.Delete(MainArg, env);
-                case "throw": InstFactory.Throw(MainArg, env, LineNo); return null;
-                case "assert": return InstFactory.Assert(MainArg, env, LineNo);
+                case "throw": InstFactory.Throw(MainArg, env); return null;
+                case "assert": return InstFactory.Assert(MainArg, env);
                 default: throw new KException("Invalid instruction!", LineNo);
             }
         }
@@ -134,15 +134,15 @@ namespace KScript.AST
             return null;
         }
 
-        public static void Throw(ASTree ast, Environment env, int loc)
+        public static void Throw(ASTree ast, Environment env)
         {
             throw new KException(ast.Evaluate(env).ToString(), ast.LineNo);
         }
 
-        public static object Assert(ASTree ast, Environment env, int loc)
+        public static object Assert(ASTree ast, Environment env)
         {
             bool res = Convert.ToBoolean(ast.Evaluate(env));
-            if (!res) throw new KException("Assertion failed!", loc);
+            if (!res) throw new KException("Assertion failed!", ast.LineNo);
             return 1D;
         }
 

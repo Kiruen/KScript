@@ -2,6 +2,7 @@
 using KScript.Callable;
 using KScript.Execution;
 using KScript.KAttribute;
+using KScript.KSystem;
 using KScript.KSystem.BuiltIn;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KScript
+
+namespace KScript.Utils
 {
     /*
         Environment.SetEnvironmentVariable("KS_PATH", "%JAVA_HOME%;", EnvironmentVariableTarget.User);
@@ -95,15 +97,15 @@ namespace KScript
             }
         }
 
-        public static KString GetElementAt(object index, int maxLen, string val)
+        public static KString GetElementAt(object index, int maxLen, string obj)
         {
             var res = ParseIndex(index, maxLen);
             int start = res.Item1, len = res.Item2, step = res.Item3;
             if (len == 0)
-                return new KString(val[start]);
+                return KString.Instance(obj[start]);
             else
             {
-                IEnumerable<char> chars = val;
+                IEnumerable<char> chars = obj;
                 if (len < 0)
                 {
                     chars = chars.Reverse();
@@ -111,10 +113,10 @@ namespace KScript
                     len = -len;
                 }
                 if (step == 1)
-                    return new KString(chars.Skip(start).Take(len).ToArray());
+                    return KString.Instance(chars.Skip(start).Take(len).ToArray());
                 else
                 {
-                    return new KString(chars.Skip(start).Take(len)
+                    return KString.Instance(chars.Skip(start).Take(len)
                                            //可使用提供索引值的func
                                            .Where((x, i) => i % step == 0)
                                            .ToArray());

@@ -1,5 +1,6 @@
 ﻿using KScript.Callable;
 using KScript.KAttribute;
+using KScript.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,7 +37,13 @@ namespace KScript.KSystem.BuiltIn
             set
             {
                 var res = IndexParser.ParseIndex(index, Count);
-                elements[res.Item1] = value;
+                if (res.Item2 > 0)
+                {
+                    elements.RemoveRange(res.Item1, res.Item2);
+                    elements.InsertRange(res.Item1, value as IEnumerable<object>);
+                }
+                else
+                    elements[res.Item1] = value;
             }
         }
 
@@ -86,8 +93,8 @@ namespace KScript.KSystem.BuiltIn
                 elements.RemoveRange(start, len);
         }
 
-        //[MemberMap("sort", MapModifier.Static, MapType.Method)]
-        public static void Sort(KList list, Function comp)
+        [MemberMap("sort", MapModifier.Static, MapType.Method)]
+        public static void Sort(KList list, Function comp = null)
         {
             if (comp == null)
                 list.elements.Sort();
@@ -99,6 +106,12 @@ namespace KScript.KSystem.BuiltIn
         public void Sort(Function comp)
         {
             Sort(this, comp);
+        }
+
+        [MemberMap("sort", MapModifier.Instance, MapType.Method)]
+        public void Sort()
+        {
+            Sort(this);
         }
 
         [MemberMap("shuffle", MapModifier.Instance, MapType.Method)]

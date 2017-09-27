@@ -63,9 +63,8 @@ namespace KScript.Callable
         {
             var paramList = new List<ASTree>(4);
             var body = (BlockStmnt)Body.Clone();
-
-            int index = 0;
             var enumerator = args.GetEnumerator();
+            int index = 0;
 
             foreach (var child in Parameters)
             {
@@ -113,19 +112,12 @@ namespace KScript.Callable
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        public object Invoke(Environment callerEnv, params object[] args)
+        public virtual object Invoke(Environment callerEnv, params object[] args)
         {
-            return Invoke(this, callerEnv, args);
-        }
-
-        /// <summary>
-        /// 动态调用指定函数实例
-        /// </summary>
-        /// <param name=""></param>
-        /// <returns></returns>
-        public static object Invoke(object func, Environment callerEnv, params object[] args)
-        {
-            return Arguments.Invoke(func, callerEnv, args);
+            var argList = args == null ? new Arguments(new List<ASTree>())
+                    : new Arguments(args.Select(arg => new ASTValue(arg))
+                                        .Cast<ASTree>().ToList());
+            return Invoke(callerEnv, argList);
         }
 
         /// <summary>
@@ -180,6 +172,13 @@ namespace KScript.Callable
                  .ToArray();
         }
 
+        public override object Invoke(Environment callerEnv, params object[] args)
+        {
+            //重新动态调用设计,去除Arguments.Call的无谓包装
+            //为Invoke方法提供方便的类型指定
+            return Arguments.Call(this, callerEnv, args);
+        }
+
         public IEnumerator<Function> GetEnumerator()
         {
             foreach (var func in functions)
@@ -205,27 +204,6 @@ namespace KScript.Callable
                 return true;
             }
             return false;
-            //if(functions[len] != null)
-            //{
-            //    if (!functions[len].Parameters.IsVarLength)
-            //    {
-            //        functions[POS_OF_VARLEN] = func;
-            //        return true;
-            //    }
-            //    else if (!func.Parameters.IsVarLength)
-            //    {
-            //        functions[POS_OF_VARLEN] = functions[len];
-            //        functions[len] = func;
-            //        return true;
-            //    }
-            //}
-            ////其他情况(都是或都不是含有变长参数表的函数,则覆盖)
-            //else if (len <= POS_OF_VARLEN)
-            //{
-            //    functions[len] = func;
-            //    return true;
-            //}
-            //return false;
         }
 
         public Function curry(double paramLen, IEnumerable<object> args)

@@ -1,6 +1,7 @@
 ﻿using KScript.Callable;
 using KScript.KSystem;
 using KScript.KSystem.BuiltIn;
+using KScript.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,8 +93,8 @@ namespace KScript.AST
                             if (method != null)
                                 method.Invoke(obj, new[] { index, rValue });
                             else
-                                Function.Invoke((obj as KObject)
-                                    .Read("setter"), env, index, rValue);
+                                Arguments.Call((obj as KObject)
+                                    .Read<IFunction>("setter"), env, index, rValue);
                         }
                     }
                 }
@@ -110,9 +111,9 @@ namespace KScript.AST
             if (/*op != ":" && */left != null && right != null &&
                 left.GetType().IsValueType && right.GetType().IsValueType)
                 return ComputeNum(Convert.ToDouble(left), op, Convert.ToDouble(right));
-            else if (op == "+" && (left is KString || right is KString))
-                return KString.Instance
-                        (KUtil.ToString(left) + KUtil.ToString(right));
+            //else if (op == "+" && (left is KString || right is KString))
+            //    return KString.Instance
+            //            (KUtil.ToString(left) + KUtil.ToString(right));
             else if (op == "==" || op == "!=")
             {
                 bool eq = op.Equals("==");
@@ -121,14 +122,15 @@ namespace KScript.AST
                 else
                     return eq ? BOOL[left.Equals(right)] : BOOL[!left.Equals(right)]; //left == tight is wrong : use "object" operator reloading
             }
-            else if (op == "*" && left is KString && right.GetType().IsValueType)
-            {
-                var result = new StringBuilder();
-                double len = Convert.ToDouble(right), count = 0;
-                while (count++ < len)
-                    result.Append(left);
-                return KString.Instance(result);
-            }
+            //已使用运算符重载实现
+            //else if (op == "*" && left is KString && right.GetType().IsValueType)
+            //{
+            //    var result = new StringBuilder();
+            //    double len = Convert.ToDouble(right), count = 0;
+            //    while (count++ < len)
+            //        result.Append(left);
+            //    return KString.Instance(result);
+            //}
             //TODO:实现运算符重载
             else
                 return ComputeObj(left, op, right);
@@ -251,18 +253,33 @@ namespace KScript.AST
 
         protected object InvokeOpOverload(object left, string olName, object right)
         {
-            if(!(left is KObject) && right is KObject)
+            KObject invoker = null;
+            IFunction func = null;
+            object arg = right;
+            if(left is KObject)
             {
-                var temp = right;
-                right = left;
-                left = temp;
+                invoker = left as KObject;
+                func = invoker.TryRead<IFunction>(olName);
             }
-            var obj = left as KObject;
-            var func = obj.TryRead(olName);
+            if(right is KObject && func == null)
+            {
+                invoker = right as KObject;
+                func = invoker.TryRead<IFunction>(olName);
+                arg = left;
+            }
+            //if(!(left is KObject) && right is KObject)
+            //{
+            //    var temp = right;
+            //    right = left;
+            //    left = temp;
+            //}
+            //var obj = left as KObject;
+            //var func = obj.TryRead(olName);
             if(func != null)
             {
                 //由于此为常量之间的运算(即使是变量也会先去取得),因此不需要指定调用环境
-                return Arguments.Invoke(func, null, right);
+                return func.Invoke(null, arg);
+                //return Arguments.Call(func, null, param);
             }
             throw new KException("Unsupported operator overload!", LineNo);
         }

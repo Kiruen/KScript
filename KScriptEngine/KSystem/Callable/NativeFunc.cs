@@ -67,7 +67,7 @@ namespace KScript.Callable
             //进入调用堆栈
             Debugger.PushFunc(Name);
             //执行方法体
-            object result = Invoke(args);
+            object result = Invoke(callerEnv, args);
             //从调用堆栈中移除
             Debugger.PopFunc();
             return result;
@@ -79,7 +79,7 @@ namespace KScript.Callable
         /// <param name="tree"></param>
         /// <param name="srcArgs"></param>
         /// <returns></returns>
-        public object Invoke(params object[] srcArgs)
+        public virtual object Invoke(Environment callerEnv, params object[] srcArgs)
         {
             try
             {
@@ -106,10 +106,12 @@ namespace KScript.Callable
 
                 return ConvertRet(result);
             }
+
             catch (Exception exc)
             {
-                throw new KException("bad native function call: " + Name 
-                    + "\r\nSourceError:\r\n" + exc.Message, Debugger.CurrLineNo);
+                throw new KException("bad native function call: " + Name +
+                        "\r\nSourceError:\r\n" + exc.Message ?? 
+                        exc.InnerException?.Message, Debugger.CurrLineNo);
             }
         }
 
@@ -174,6 +176,12 @@ namespace KScript.Callable
         {
             funcs.Select(func => Add(func))
                  .ToArray();
+        }
+
+        public override object Invoke(Environment callerEnv, params object[] args)
+        {
+            return Arguments.Call(this, callerEnv, args);
+            /*this[args.Length].Invoke(callerEnv, args);*/
         }
 
         public bool Add(NativeFunc func)

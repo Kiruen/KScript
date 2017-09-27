@@ -1,4 +1,5 @@
 ﻿using KScript.Callable;
+using KScript.KSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,13 +30,13 @@ namespace KScript.AST
             //获取要迭代的集合的迭代器
             var enumObj = Enumrator.Evaluate(env);
             //剥开KObject的包装,获取最原始的数据集合
-            while (!(enumObj is IEnumerable<object>))
+            while (!(enumObj is IEnumerable<object>) && enumObj is KObject)
             {
-                if(enumObj is KObject)
-                {
-                    enumObj = Function.Invoke((enumObj as KObject).Read("iterator"), env);
-                }
+                enumObj = Arguments.Call((enumObj as KObject).Read<IFunction>("iterator"), env);
             }
+            //if (enumObj == null)
+            //    throw new KException("Type error: iterator ", LineNo);
+
             var collection = enumObj as IEnumerable<object>;
             var enumrator = collection.GetEnumerator();
             //初始化当前的集合元素(启动状态机),并向环境中置初值

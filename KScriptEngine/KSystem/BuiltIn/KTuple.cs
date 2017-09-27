@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using KScript.Execution;
+using KScript.Utils;
 
 namespace KScript.KSystem.BuiltIn
 {

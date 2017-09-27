@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32.SafeHandles;
+using KScript.Utils;
+using System.Windows.Forms;
 
 namespace KScript
 {
@@ -30,6 +32,7 @@ namespace KScript
                                   uint dwCreationDisposition,
                                   uint dwFlagsAndAttributes,
                                   uint hTemplateFile);
+
         [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr GetConsoleWindow();
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -38,6 +41,8 @@ namespace KScript
         private static extern IntPtr RemoveMenu(IntPtr hMenu, uint uPosition, uint uFlags);
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
+        [DllImport("user32.dll", EntryPoint = "SetWindowText", CharSet = CharSet.Ansi)]
+        public static extern int SetWindowText(IntPtr hwnd, string lpString);
 
         private static bool Active { get; set; }
         private static IntPtr chWnd;
@@ -48,13 +53,12 @@ namespace KScript
         private const uint FILE_SHARE_WRITE = 0x2;
         private const uint OPEN_EXISTING = 0x3;
 
-        public static void Show()
+        public static void Show(string title = "")
         {
             if (!Active)
             {
                 Active = true;
                 AllocConsole();
-
                 //IntPtr stdHandle = CreateFile("CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
                 //SafeFileHandle safeFileHandle = new SafeFileHandle(stdHandle, true);
                 //FileStream fileStream = new FileStream(safeFileHandle, FileAccess.Write);
@@ -62,7 +66,7 @@ namespace KScript
                 //StreamWriter standardOutput = new StreamWriter(fileStream, encoding);
                 //standardOutput.AutoFlush = true;
                 //Console.SetOut(standardOutput);
-
+                
                 chWnd = GetConsoleWindow();
                 xhWnd = GetSystemMenu(chWnd, IntPtr.Zero);
                 RemoveMenu(xhWnd, 0xF060, 0x0);
@@ -70,6 +74,7 @@ namespace KScript
             }
             else
                 ShowWindow(chWnd, 1);
+            SetWindowText(chWnd, title);
         }
 
         public static void Close()
@@ -92,8 +97,9 @@ namespace KScript
         public static void WriteLine(params object[] objs)
         {
             Console.WriteLine(objs
-                .Select(o => KUtil.ToString(o))
-                .Aggregate((s1, s2) =>  s1 + ' ' + s2));
+                    .DefaultIfEmpty("")
+                    .Select(o => KUtil.ToString(o))
+                    .Aggregate((s1, s2) =>  s1 + ' ' + s2));
         }
 
         public static void Write(params object[] objs)

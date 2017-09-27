@@ -1,5 +1,6 @@
 ﻿using KScript.Callable;
 using KScript.KAttribute;
+using KScript.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,31 +22,73 @@ namespace KScript.KSystem.BuiltIn
         }
 
         [MemberMap("where", MapModifier.Instance, MapType.Method)]
-        public KGenerator Where(Function fun)
+        public KGenerator Where(IFunction fun)
         {
             return new KGenerator
-                (elements.Where(
-                    e => Convert.ToBoolean(fun.Invoke(null, e))));
+                    (elements.Where
+                    (e => Convert.ToBoolean(fun.Invoke(null, e))));
         }
 
         [MemberMap("map", MapModifier.Instance, MapType.Method)]
-        public KGenerator Map(Function fun)
+        public KGenerator Map(IFunction fun)
         {
             return new KGenerator
-                (elements.Select(
-                    e => fun.Invoke(null, e)));
+                    (elements.Select
+                    (e => fun.Invoke(null, e)));
         }
 
         [MemberMap("reverse", MapModifier.Instance, MapType.Method)]
-        public KGenerator Reverse(Function fun)
+        public KGenerator Reverse()
         {
             return new KGenerator(elements.Reverse());
         }
 
         [MemberMap("zip", MapModifier.Instance, MapType.Method)]
-        public KGenerator Zip(IEnumerable<object> second, Function selector)
+        public KGenerator Zip(IEnumerable<object> second, IFunction selector)
         {
             return new KGenerator(elements.Zip(second, (x, y)=> selector.Invoke(null, x, y)));
+        }
+
+        [MemberMap("collect", MapModifier.Instance, MapType.Method)]
+        public object Collect(IFunction selector)
+        {
+            return elements.Aggregate((x, y) => selector.Invoke(null, x, y));
+        }
+
+        [MemberMap("max", MapModifier.Instance, MapType.Method)]
+        public object Max(IFunction selector)
+        {
+            return elements.Max(x => selector.Invoke(null, x));
+        }
+
+        [MemberMap("min", MapModifier.Instance, MapType.Method)]
+        public object Min(IFunction selector)
+        {
+            return elements.Min(x => selector.Invoke(null, x));
+        }
+
+        [MemberMap("count", MapModifier.Instance, MapType.Method)]
+        public double Count(IFunction selector)
+        {
+            return (double)elements.Count(x => Convert.ToBoolean(selector.Invoke(null, x)));
+        }
+
+        [MemberMap("count", MapModifier.Instance, MapType.Method)]
+        public double Count()
+        {
+            return (double)elements.Count();
+        }
+
+        [MemberMap("skip", MapModifier.Instance, MapType.Method)]
+        public KGenerator Skip(int count)
+        {
+            return new KGenerator(elements.Skip(count));
+        }
+
+        [MemberMap("take", MapModifier.Instance, MapType.Method)]
+        public KGenerator Take(int count)
+        {
+            return new KGenerator(elements.Take(count));
         }
 
         [MemberMap("toList", MapModifier.Instance, MapType.Method)]

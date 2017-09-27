@@ -11,7 +11,6 @@ namespace KScript.AST
         protected ClassStmnt definition;
         //创建类对象的环境
         public Environment DeclareEnv { get; private set; }
-
         public string Name { get; set; } /*{ return definition.Name; }*/
 
         /// <summary>
@@ -41,17 +40,15 @@ namespace KScript.AST
             PutCommonFields();
         }
 
+        //设计极不合理！亟待优化
         //在基本类型的基础上创建自定义类型对象
         public ClassInfo(ClassStmnt def, Environment outer)
             :this(def.Name, outer)
         {
-            if(def.Name == "BigNum")
-            {
-                ;
-            }
             definition = def;
             //初始化成员(执行成员的定义,隐藏内部维护的成员(以'-'开头的非用户使用字段))
             InitStaticMember(def, outer);
+            //整合各种反射信息
             Fields = innerEnv.Names
                      .Where(n => !n.StartsWith("-"))
                      .Where(n => !(innerEnv.Get(n) is Function))
@@ -72,7 +69,6 @@ namespace KScript.AST
                 .ToArray();
                 innerEnv.UpdateName(Name, "_cons");
             }
-
             //留下静态成员
             innerEnv.Names
                  //.OrderBy(x => x[0])  将静态成员排在前面防止同名成员被删除
@@ -90,10 +86,11 @@ namespace KScript.AST
             innerEnv.PutInside("getMethod", new NativeFunc("GetMethodInfo", this));
             innerEnv.PutInside("fields", Fields);
             innerEnv.PutInside("methods", Methods);
+            //添加共有字段(重复添加,因为上述步骤会把先前添加的变量删除)
             PutCommonFields();
         }
 
-        //加载公有的类字段
+        //加载ClassInfo公有的字段
         private void PutCommonFields()
         {
             innerEnv.PutInside("type", ClassLoader.GetOrCreateClass("Type"));
@@ -105,6 +102,7 @@ namespace KScript.AST
             object obj = outer.Get(def.SuperClass);   //向外层查询父类info
             if (obj == null)
                 Super = null;
+            //将父类ClassInfo的内部环境链接到本Info内部环境的外部(实现静态成员的继承访问)
             else if (obj is ClassInfo)
             {
                 Super = obj as ClassInfo;
@@ -112,7 +110,7 @@ namespace KScript.AST
             }
             else
                 throw new KException("unknown super class: " + def.SuperClass, def, def.LineNo);
-
+            //执行类体中的所有语句
             Body.IniForClassInfo(innerEnv);
         }
 

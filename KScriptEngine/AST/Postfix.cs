@@ -32,19 +32,22 @@ namespace KScript.AST
             if (prefix is IFunction)
             {
                 return (prefix as IFunction)[Length].Invoke(callerEnv, this);
-                //Function func = (prefix as Function)[Length];
-                //return func.Invoke(callerEnv, this);
             }
             else
                 throw new KException("Not a function object", this, LineNo);
         }
 
-        public static object Invoke(object func, Environment callerEnv, params object[] args)
+        /// <summary>
+        /// 动态调用某个(组中指定的)函数
+        /// </summary>
+        /// <param name="func">函数实例</param>
+        /// <param name="callerEnv">调用者的环境</param>
+        /// <param name="args">参数表</param>
+        /// <returns></returns>
+        public static object Call(IFunction func, Environment callerEnv, params object[] args)
         {
-            var argList = args == null ? new Arguments(new List<ASTree>())
-                    : new Arguments(args.Select(arg => new ASTValue(arg))
-                                        .Cast<ASTree>().ToList());
-            return argList.Evaluate(callerEnv, func);
+            int len = args?.Length ?? 0;
+            return func[len].Invoke(callerEnv, args);
         }
     }
 
@@ -84,7 +87,7 @@ namespace KScript.AST
                     else return kobj;
                 }
                 //引用静态成员
-                else /* if (info.HasStaticMember(member))*/
+                else
                     return info.Read(member);
             }
             //引用对象的成员
@@ -101,7 +104,7 @@ namespace KScript.AST
         /// <summary>
         /// 初始化对象,即执行对象的类定义里的内容(不等于构造函数！)
         /// </summary>
-        /// <param name="info">类元数据</param>
+        /// <param name="info">类的元数据</param>
         /// <param name="finalEnv">最终构建的类的内环境</param>
         /// <param name="currentEnv">当前递归层次(某个祖先类)正在使用的内环境</param>
         /// <returns></returns>
@@ -121,14 +124,15 @@ namespace KScript.AST
                 innerEnv.PutInside("super", super);          //仿照js的prototype模式
             }
             info.Body.Evaluate(innerEnv);                   //会向当前环境里添加变量、函数实例等
-            //向类定义中附加一份内部构造函数,以供子类调用
-            var init = new OLFunction();
-            innerEnv.PutInside("_init", init);
+            //向类定义中附加一份内部构造函数(初始化用),以供子类调用
+            //注意,此处的_init是不带返回值的_cons,先于_cons被构造
+            var initor = new OLFunction();
+            innerEnv.PutInside("_init", initor);
             if (innerEnv.Contains(info.Name))
             {
                 //将原先构造器的所有重载版本放入新的init对象中
                 innerEnv.Get<OLFunction>(info.Name)
-                .Select(cons => init.Add(cons.Clone() as Function))
+                .Select(cons => initor.Add(cons.Clone() as Function))
                 .ToArray();
                 //改变构造器名称(防止跟类名重复)
                 innerEnv.UpdateName(info.Name, "_cons");
@@ -183,7 +187,7 @@ namespace KScript.AST
                         return getter.Invoke(prefix, new[] { index });
                     }
                     else
-                        return Function.Invoke((prefix as KObject).Read("getter"), env, index);
+                        return Arguments.Call((prefix as KObject).Read<IFunction>("getter"), env, index);
                 }
                 //提供.net原生序列对象的读取操作
                 else

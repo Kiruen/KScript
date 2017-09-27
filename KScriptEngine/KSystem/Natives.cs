@@ -5,6 +5,7 @@ using KScript.Callable;
 using KScript.KAttribute;
 using KScript.KSystem.BuiltIn;
 using KScript.Execution;
+using KScript.Utils;
 
 namespace KScript.KSystem
 {

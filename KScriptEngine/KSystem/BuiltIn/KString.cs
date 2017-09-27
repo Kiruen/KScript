@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 using MapModifier = KScript.KAttribute.MapModifier;
+using KScript.Utils;
+using System.Text;
 
 namespace KScript.KSystem.BuiltIn
 {
@@ -133,6 +135,22 @@ namespace KScript.KSystem.BuiltIn
         public KString Format(IEnumerable<object> args)
         {
             return string.Format(val, args.ToArray());
+        }
+
+        [MemberMap("_mul", MapModifier.Instance, MapType.Method)]
+        public KString Repeat(int time)
+        {
+            var result = new StringBuilder();
+            int len = time, count = 0;
+            while (count++ < len)
+                result.Append(val);
+            return KString.Instance(result);
+        }
+
+        [MemberMap("_add", MapModifier.Instance, MapType.Method)]
+        public KString Concat(object other)
+        {
+            return KString.Instance(val + KUtil.ToString(other));
         }
 
         public override bool Equals(object obj)

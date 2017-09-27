@@ -1,5 +1,6 @@
 ﻿using KScript.AST;
 using KScript.Callable;
+using KScript.KSystem.BuiltIn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace KScript.KSystem.Reflection
 {
     //反射元数据
-    public class KMemberInfo
+    public class KMemberInfo : KBuiltIn
     {
         public string Name { get; protected set; }
         protected Environment OuterEnv { get; set; }
@@ -81,12 +82,13 @@ namespace KScript.KSystem.Reflection
         public object Invoke(KObject obj, IEnumerable<object> args)
         {
             var olfuncs = obj.Read<Function>(Name);
-            var list = args.Select(arg => new ASTValue(arg))
-                           .Cast<ASTree>()
-                           .ToList();
-            //不能截断参数表！因为不确定是哪个重载版本
-            var _args = new Arguments(list);    //list.Take(func.ParamsLength).ToList()
-            return _args.Evaluate(OuterEnv, olfuncs);
+            return Arguments.Call(olfuncs, OuterEnv, args.ToArray());
+            //var list = args.Select(arg => new ASTValue(arg))
+            //               .Cast<ASTree>()
+            //               .ToList();
+            ////不能截断参数表！因为不确定是哪个重载版本
+            //var _args = new Arguments(list);    //list.Take(func.ParamsLength).ToList()
+            //return _args.Evaluate(OuterEnv, olfuncs);
         }
     }
 }

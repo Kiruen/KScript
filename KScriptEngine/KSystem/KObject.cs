@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KScript
+namespace KScript.KSystem
 {
     public class KObject
     {
@@ -59,6 +59,11 @@ namespace KScript
         {
             return (TRes)Read(member);
         }
+
+        //public IFunction ReadSpecialFunc(string name)
+        //{
+        //    return 
+        //}
 
         /// <summary>
         /// 试图获取成员,可能返回null.应避免此null和真null混用

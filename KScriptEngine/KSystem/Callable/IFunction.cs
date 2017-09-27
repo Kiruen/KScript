@@ -14,5 +14,6 @@ namespace KScript.Callable
         string Name { get; }
         int ParamsLength { get; }
         object Invoke(Environment callerEnv, Arguments argList);
+        object Invoke(Environment callerEnv, params object[] args);
     }
 }
