@@ -228,7 +228,7 @@ namespace KScript
                     //②原版Java代码的glounj拓展类(包含一些仅含有根结点的ASTList)
                     //这样的移植可能存在隐患,拓展时应予以重点维护
                     if (!(ast is ASTList) || ast.ChildrenCount > 0 
-                                          || ast is Arguments)
+                       || ast is Arguments)
                         res.Add(ast);
                     if (onlyOnce) break;
                 }

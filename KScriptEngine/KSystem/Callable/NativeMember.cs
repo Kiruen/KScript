@@ -12,6 +12,7 @@ namespace KScript.Callable
     public abstract class NativeMember
     {
         protected object invoker;
+
         public string Name { get; protected set; }
         public bool IsStatic { get; protected set; }
 

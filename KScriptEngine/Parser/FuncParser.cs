@@ -46,7 +46,9 @@ namespace KScript
                 .Ast(paramlist).Ast(block),
                 rule(typeof(Closure)).Sep("$")
                 .Or(paramlist, parames)
-                .Sep("=>").Or(expr, block)
+                //为了兼容lambda表达式,特此修改匹配顺序。
+                //之前的顺序:expr, block。
+                .Sep("=>").Or(block, expr)  
                 ));
             simple.Option(args).Rep(rule0().Sep(";"));      //函数调用语句可不加括号
             program.InsertChoice(def);

@@ -49,6 +49,21 @@ namespace KScript.KSystem.BuiltIn
             return new KGenerator(elements.Zip(second, (x, y)=> selector.Invoke(null, x, y)));
         }
 
+        [MemberMap("group", MapModifier.Instance, MapType.Method)]
+        public KDict Group(IFunction keySelector)
+        {
+            return new KDict(elements.GroupBy(e => keySelector.Invoke(null, e)).ToDictionary(g => g.Key, g => (object)g.ToList()));
+        }
+
+        [MemberMap("group", MapModifier.Instance, MapType.Method)]
+        public KDict Group(IFunction keySelector, IFunction valSelector)
+        {
+            return new KDict(elements.GroupBy(
+                    (e => keySelector.Invoke(null, e)),
+                    (e => valSelector.Invoke(null, e)))
+                   .ToDictionary(g => g.Key, g => (object)g.ToList()));
+    }
+
         [MemberMap("collect", MapModifier.Instance, MapType.Method)]
         public object Collect(IFunction selector)
         {
@@ -95,6 +110,21 @@ namespace KScript.KSystem.BuiltIn
         public KList ToList()
         {
             return new KList(elements);
+        }
+
+        [MemberMap("toDict", MapModifier.Instance, MapType.Method)]
+        public KDict ToDict(IFunction keySelector, IFunction valSelector)
+        {
+            return new KDict(elements.ToDictionary
+                ((e => keySelector.Invoke(null, e)),
+                 (e => valSelector.Invoke(null, e))));
+        }
+
+        [MemberMap("forEach", MapModifier.Instance, MapType.Method)]
+        public void ForEach(IFunction action)
+        {
+            foreach (var val in elements)
+                action.Invoke(null, val);
         }
 
         [MemberMap("range", MapModifier.Static, MapType.Method)]

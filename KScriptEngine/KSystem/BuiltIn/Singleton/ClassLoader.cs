@@ -49,7 +49,7 @@ namespace KScript.KSystem
         /// <summary>
         /// 试图获得类信息对象;若不存在此类,则简单构建一个临时的类信息对象
         /// </summary>
-        /// <param name="className"></param>
+        /// <param name="className">类名</param>
         /// <returns></returns>
         public static ClassInfo GetOrCreateClass(string className)
         {

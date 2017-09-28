@@ -151,7 +151,7 @@ namespace KScript.Callable
     {
         public static readonly int POS_OF_VARLEN = 10;
         private Function[] functions = new Function[11];
-        //TODO:实现变长参数表
+
         public override IFunction this[int i]
         {
             get
@@ -182,7 +182,8 @@ namespace KScript.Callable
         public IEnumerator<Function> GetEnumerator()
         {
             foreach (var func in functions)
-                if (func != null) yield return func;
+                if (func != null)
+                    yield return func;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

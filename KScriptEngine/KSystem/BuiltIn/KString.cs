@@ -153,6 +153,12 @@ namespace KScript.KSystem.BuiltIn
             return KString.Instance(val + KUtil.ToString(other));
         }
 
+        [MemberMap("_add", MapModifier.Instance, MapType.Method)]
+        public KString Concat(int holdspace, object other)
+        {
+            return KString.Instance(KUtil.ToString(other) + val);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null) return val.Length == 0;

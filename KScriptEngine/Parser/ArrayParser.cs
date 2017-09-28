@@ -14,7 +14,6 @@ namespace KScript   //.Parser 类名与命名空间重名！
         public ArrayParser()
         {
             reserved.Add("]");
-            //reserved.Add(">");
             //注意！elements和新的postfix没有关系哦！
             //elements = rule(typeof(ArrayLiteral)).Ast(expr)
             //                .Rep(rule0().Sep(",").Ast(expr));

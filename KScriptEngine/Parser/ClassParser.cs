@@ -9,18 +9,18 @@ namespace KScript
 {
     public class ClassParser : FuncParser
     {
-        Parser member, classBody, classdef;
+        Parser member, classBody, classDef;
 
         public ClassParser()
         {
             member = rule0().Or(def, simple);
             classBody = rule(typeof(ClassBody)).Sep("{").Rep(member).Sep("}");
-            classdef = rule(typeof(ClassStmnt)).Sep("class").AddId(reserved)
+            classDef = rule(typeof(ClassStmnt)).Sep("class").AddId(reserved)
                 .Option(rule0().Sep(":").AddId(reserved))
                 .Ast(classBody);
 
             postfix.InsertChoice(rule(typeof(Dot)).Sep(".").AddId(reserved));
-            program.InsertChoice(classdef);
+            program.InsertChoice(classDef);
 
             reserved.Add("class");
             reserved.Add(":");

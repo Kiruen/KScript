@@ -131,7 +131,6 @@ namespace KScript.AST
             //        result.Append(left);
             //    return KString.Instance(result);
             //}
-            //TODO:实现运算符重载
             else
                 return ComputeObj(left, op, right);
             //throw new KException("Cannot compute: Bad type", Location);
@@ -198,11 +197,11 @@ namespace KScript.AST
                     }
                 case "is":
                     {
-                        if(right is ClassInfo)
+                        if (right is ClassInfo)
                         {
                             //var kobj = left as KObject;
                             bool res = API.TypeOf(left) == right;
-                            if(left is KObject)
+                            if (left is KObject)
                             {
                                 var kobj = left as KObject;
                                 while (!res && (kobj = kobj.TryRead<KObject>("super")) != null)
@@ -256,6 +255,7 @@ namespace KScript.AST
             KObject invoker = null;
             IFunction func = null;
             object arg = right;
+            bool isRightFunc = false;
             if(left is KObject)
             {
                 invoker = left as KObject;
@@ -266,6 +266,7 @@ namespace KScript.AST
                 invoker = right as KObject;
                 func = invoker.TryRead<IFunction>(olName);
                 arg = left;
+                isRightFunc = true;
             }
             //if(!(left is KObject) && right is KObject)
             //{
@@ -277,9 +278,13 @@ namespace KScript.AST
             //var func = obj.TryRead(olName);
             if(func != null)
             {
-                //由于此为常量之间的运算(即使是变量也会先去取得),因此不需要指定调用环境
-                return func.Invoke(null, arg);
-                //return Arguments.Call(func, null, param);
+                //为了区分顺序,故当调用右值时,增加一个常数作为
+                //占位符以示区分,但重载函数也要修改对应参数表
+                //由于动态调用为常量之间的运算(即使是变量也会先去取得),因此不需要指定调用环境
+                if (isRightFunc && func[2] != null)
+                    return func.Invoke(null, 1, arg);
+                else
+                    return func.Invoke(null, arg);
             }
             throw new KException("Unsupported operator overload!", LineNo);
         }
