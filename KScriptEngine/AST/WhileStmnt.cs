@@ -12,30 +12,30 @@ namespace KScript.AST
 
         public WhileStmnt(List<ASTree> list) : base(list) { }
 
-        public override object Evaluate(Environment ev)
+        public override object Evaluate(Environment env)
         {
             object result = 0;
             int stackLevel = 0;
             //循环语句私有的作用域,保存一些状态变量
-            Environment inner = new NestedEnv(ev);
+            Environment inner = new NestedEnv(env);
             while (stackLevel++ < STACK_MAXLEVEL)
             {
-                object condiRes = Condition.Evaluate(ev);
+                object condiRes = Condition.Evaluate(env);
                 if (!(condiRes is double))
                     throw new KException("Invalid state variable!", LineNo);
                 else if ((double)condiRes == 0)
                     return null;
-                else if (result is SpecialToken)
+                else if (result is InstToken)
                 {
-                    SpecialToken token = result as SpecialToken;
-                    if (token.Text == "break")
+                    InstToken token = (InstToken)result;
+                    if (token.Inst == InstToken.BREAK)
                         return null;
-                    else if (token.Text == "continue")
+                    else if (token.Inst == InstToken.CONTINUE)
                     {
                         result = null; //清空result,进行新一次循环
                         continue;
                     }
-                    else if (token.Text == "return")
+                    else if (token.Inst == InstToken.RETURN)
                         return token;
                 }
                 else

@@ -4,7 +4,7 @@ using KScript.AST;
 using KScript.Callable;
 using KScript.KAttribute;
 using KScript.KSystem.BuiltIn;
-using KScript.Execution;
+using KScript.Runtime;
 using KScript.Utils;
 
 namespace KScript.KSystem
@@ -38,6 +38,7 @@ namespace KScript.KSystem
             env.PutInside("Num", ClassLoader.GetOrCreateClass("Num"));
             env.PutInside("None", ClassLoader.GetOrCreateClass("None"));
             KBuiltIn.IniBuitInClasses();
+            //将ClassLoader中的所有内建类型放入环境中
             ClassLoader.DumpInto(env);
             //初始化所有基础内建类型
             //加载特殊对象

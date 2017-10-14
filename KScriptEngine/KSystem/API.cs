@@ -78,14 +78,14 @@ namespace KScript.KSystem
         public static object Eval(KString code)
         {
             Lexer lexer = new Lexer(code);
-            Environment ev = new NestedEnv();
+            Environment env = new NestedEnv();
             BasicParser parser = new BasicParser();
             object result = null;
             while (lexer.Peek(0) != Token.EOF)
             {
                 ASTree ast = parser.Parse(lexer);
                 if (!(ast is NullStmnt))
-                    result = ast.Evaluate(ev);
+                    result = ast.Evaluate(env);
             }
             return result;
         }

@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KScript.Execution
+namespace KScript.Runtime
 {
-    public enum Actions
+    public enum DebugActions
     {
         StepAllBeforeHit = 1,
         StepOver = 2,
@@ -17,7 +17,7 @@ namespace KScript.Execution
     }
 
     /// <summary>
-    /// 调试器
+    /// 脚本系统内置调试器
     /// </summary>
     public static class Debugger
     {
@@ -109,29 +109,29 @@ namespace KScript.Execution
                 TCProgram.Suspend();
         }
 
-        public static void GoOn(Actions next = Actions.StepAllBeforeHit)
+        public static void Continue(DebugActions next = DebugActions.StepAllBeforeHit)
         {
             if (TCProgram?.ThreadState == ThreadState.Suspended)
             {
                 TCProgram.Resume();
-                if (next == Actions.StepOver)
+                if (next == DebugActions.StepOver)
                 {
                     WillStepOver = true;
                     WillStepIn = false;
                     //DebuggingStackLevel = StackLevel;
                 }
-                else if (next == Actions.StepAllBeforeHit)
+                else if (next == DebugActions.StepAllBeforeHit)
                 {
                     WillStepOver = false;
                     WillStepIn = false;
                     Debugging = false;
                 }
-                else if (next == Actions.StepIn)
+                else if (next == DebugActions.StepIn)
                 {
                     WillStepOver = false;
                     WillStepIn = true;
                 }
-                else if (next == Actions.StepReturn)
+                else if (next == DebugActions.StepReturn)
                 {
                     WillStepOver = true;
                     WillStepIn = false;
@@ -142,7 +142,7 @@ namespace KScript.Execution
 
         public static void Stop()
         {
-            GoOn();
+            Continue();
             if (TCProgram?.ThreadState != ThreadState.Aborted)
                 TCProgram?.Abort();
         }

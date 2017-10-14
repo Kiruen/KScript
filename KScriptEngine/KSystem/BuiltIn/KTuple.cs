@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
-using KScript.Execution;
+using KScript.Runtime;
 using KScript.Utils;
 
 namespace KScript.KSystem.BuiltIn

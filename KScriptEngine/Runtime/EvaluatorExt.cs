@@ -8,6 +8,8 @@ namespace KScript
 {
     public partial class Evaluator
     {
+        private StringBuilder scriptTemp;
+
         public Evaluator()
         {
             scriptTemp = new StringBuilder();

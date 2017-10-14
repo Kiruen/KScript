@@ -34,11 +34,11 @@ namespace KScript.AST
             lexer.ReadAll();
             while (lexer.TokenCount != 0)
             {
-                ASTree ast = Evaluator.Parse(lexer);
+                ASTree ast = Evaluator.GenAST(lexer);
                 if (!(ast is NullStmnt))
                 {
                     object result = ast.Evaluate(env);
-                    if (result is SpecialToken)
+                    if (result is InstToken)
                         break;
                 }
             }

@@ -1,4 +1,4 @@
-﻿using KScript.Execution;
+﻿using KScript.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,15 +27,15 @@ namespace KScript.AST
                 if (!(fragment is NullStmnt))
                 {
                     result = fragment.Evaluate(temporary);
-                    if (result is SpecialToken)
+                    if (result is InstToken)
                     {
                         //只要是阻断当前操作的特殊令牌,就返回给上层
                         //一般都是从代码块中原封不动地返回令牌
                         //然后由调用代码块的地方来检测、处理令牌
-                        SpecialToken token = result as SpecialToken;
-                        if (token.Text == "continue" || 
-                            token.Text == "break" || 
-                            token.Text == "return")
+                        InstToken token = (InstToken)result;
+                        if (token.Inst == InstToken.CONTINUE || 
+                            token.Inst == InstToken.BREAK || 
+                            token.Inst == InstToken.RETURN)
                             return token;
                     }
                 }
@@ -56,7 +56,7 @@ namespace KScript.AST
                 lexer = new Lexer(code);
 
             lexer.ReadAll();
-            var res = Evaluator.Parse(lexer);
+            var res = Evaluator.GenAST(lexer);
             children.Insert(lineNo, res);
             return true;
         }

@@ -1,4 +1,4 @@
-﻿using KScript.Execution;
+﻿using KScript.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ namespace KScript.AST
             return GetEnumerator();
         }
 
-        public override string ToString() { return ""; }
+        public override string ToString() { return GetType().Name; }
 
         public virtual object Clone()
         {

@@ -49,20 +49,29 @@ namespace KScript.KSystem.BuiltIn
             return new KGenerator(elements.Zip(second, (x, y)=> selector.Invoke(null, x, y)));
         }
 
-        [MemberMap("group", MapModifier.Instance, MapType.Method)]
-        public KDict Group(IFunction keySelector)
+        [MemberMap("partial", MapModifier.Instance, MapType.Method)]
+        public KList Partial(IFunction keySelector)
         {
-            return new KDict(elements.GroupBy(e => keySelector.Invoke(null, e)).ToDictionary(g => g.Key, g => (object)g.ToList()));
+            return new KList(elements
+                .GroupBy(e => keySelector.Invoke(null, e))
+                .Select(g => new KList(g.ToList())));
         }
 
-        [MemberMap("group", MapModifier.Instance, MapType.Method)]
+        [MemberMap("groupBy", MapModifier.Instance, MapType.Method)]
+        public KDict Group(IFunction keySelector)
+        {
+            return new KDict(elements.GroupBy(e => keySelector.Invoke(null, e))
+                .ToDictionary(g => g.Key, g => new KList(g.ToList()) as object));
+        }
+
+        [MemberMap("groupBy", MapModifier.Instance, MapType.Method)]
         public KDict Group(IFunction keySelector, IFunction valSelector)
         {
-            return new KDict(elements.GroupBy(
-                    (e => keySelector.Invoke(null, e)),
-                    (e => valSelector.Invoke(null, e)))
-                   .ToDictionary(g => g.Key, g => (object)g.ToList()));
-    }
+            return new KDict(elements.GroupBy
+                    ((e => keySelector.Invoke(null, e)),
+                     (e => valSelector.Invoke(null, e)))
+                    .ToDictionary(g => g.Key, g => new KList(g.ToList()) as object));
+        }
 
         [MemberMap("collect", MapModifier.Instance, MapType.Method)]
         public object Collect(IFunction selector)

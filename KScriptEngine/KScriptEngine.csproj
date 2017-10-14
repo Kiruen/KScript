@@ -56,7 +56,7 @@
     <Compile Include="AST\Literal\SetOrDict.cs" />
     <Compile Include="AST\Visitor\VariableCollector.cs" />
     <Compile Include="AST\Visitor\Visitor.cs" />
-    <Compile Include="Execution\Debugger.cs" />
+    <Compile Include="Runtime\Debugger.cs" />
     <Compile Include="Legacy\Pair.cs" />
     <Compile Include="AST\Literal\TupleLiteral.cs" />
     <Compile Include="AST\DeclareExpr.cs" />
@@ -69,6 +69,8 @@
     <Compile Include="AST\InstExpr.cs" />
     <Compile Include="KSystem\BuiltIn\KGenerator.cs" />
     <Compile Include="KSystem\BuiltIn\KTinyObject.cs" />
+    <Compile Include="Utils\Hook.cs" />
+    <Compile Include="Utils\KeyCollector.cs" />
     <Compile Include="Utils\KUtil.cs" />
     <Compile Include="Legacy\LinkStmnt.cs" />
     <Compile Include="AST\MatchStmnt.cs" />
@@ -86,7 +88,7 @@
     <Compile Include="AST\VarName.cs" />
     <Compile Include="AST\WhileStmnt.cs" />
     <Compile Include="Environment\Environment.cs" />
-    <Compile Include="Execution\Evaluator.cs" />
+    <Compile Include="Runtime\Evaluator.cs" />
     <Compile Include="Utils\KConsole.cs" />
     <Compile Include="KException.cs" />
     <Compile Include="Utils\KStdInputStream.cs" />
@@ -127,9 +129,9 @@
     <Compile Include="KSystem\BuiltIn\Singleton\ClassLoader.cs" />
     <Compile Include="Legacy\TestNative.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Execution\EvaluatorExt.cs" />
-    <Compile Include="Execution\VisionEvaluator.cs" />
-    <Compile Include="Utils\PathManager.cs" />
+    <Compile Include="Runtime\EvaluatorExt.cs" />
+    <Compile Include="Runtime\VisionEvaluator.cs" />
+    <Compile Include="Utils\KPath.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

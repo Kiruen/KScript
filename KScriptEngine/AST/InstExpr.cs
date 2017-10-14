@@ -30,8 +30,8 @@ namespace KScript.AST
             switch (InstName)
             {
                 case "continue": case "break":
-                    return new SpecialToken(InstName, null);
-                case "return": return new SpecialToken(InstName, this[1].Evaluate(env));
+                    return new InstToken(InstName, null);
+                case "return": return new InstToken(InstName, this[1].Evaluate(env));
                 case "new": return InstFactory.Malloc(MainArg, env);
                 case "using": return InstFactory.Using(MainArg, DeputyArg, env);
                 case "del": return InstFactory.Delete(MainArg, env);
@@ -46,7 +46,6 @@ namespace KScript.AST
     public static class InstFactory
     {
         //ast为去除指令后的抽象语法树,通常为指令所需要的参数
-
         //空间申请指令
         //TODO:统一使用new构造对象、数组
         public static object Malloc(ASTree ast, Environment env)
@@ -98,7 +97,7 @@ namespace KScript.AST
                     EngineInitor.Initial(moduleEnv);
                     var eval = new Evaluator(File.ReadAllText(path));
                     //执行目标文件的代码,目的是创建对象和初始化数据,之后这些数据驻留在环境env中
-                    eval.ExecuteWithExt(moduleEnv, false);
+                    eval.Execute(moduleEnv, false);
                     //var knamespace = new KNameSpace(moduleEnv, moduleName);
                     //env.PutInside(moduleName, knamespace);
                 }

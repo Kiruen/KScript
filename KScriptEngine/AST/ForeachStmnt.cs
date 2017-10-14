@@ -44,17 +44,17 @@ namespace KScript.AST
             inner.PutInside(Status, enumrator.Current);
             while (stackLevel++ < STACK_MAXLEVEL)
             {
-                if (result is SpecialToken)
+                if (result is InstToken)
                 {
-                    SpecialToken token = result as SpecialToken;
-                    if (token.Text == "break")
+                    InstToken token = (InstToken)result;
+                    if (token.Inst == InstToken.BREAK)
                         return null;
-                    else if (token.Text == "continue")
+                    else if (token.Inst == InstToken.CONTINUE)
                     {
                         result = null; //清空result,进行新一次循环
                         continue;
                     }
-                    else if (token.Text == "return")
+                    else if (token.Inst == InstToken.RETURN)
                         return token;
                 }
                 //改变状态

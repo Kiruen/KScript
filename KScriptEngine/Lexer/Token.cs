@@ -1,4 +1,4 @@
-﻿using KScript.Execution;
+﻿using KScript.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +9,8 @@ namespace KScript
 {
     public abstract class Token
     {
-        public static readonly Token EOF = new SpecialToken("EOF", null);
-        public static readonly string EOL = "\\n";//";";
+        public static readonly Token EOF = new PartiToken("EOF");  //一定不能用正常单词实例化一个特殊单词字符
+        public static readonly string EOL = "\\n";  //";";
 	    public int LineNo { set; get; }
         public virtual double Number { get { throw new KException("not a number token.", Debugger.CurrLineNo); } }
         public virtual string Text { get; }
@@ -38,8 +38,12 @@ namespace KScript
         private static Dictionary<char, int> radixMap
             = new Dictionary<char, int>()
             {
-                {'X', 16 }, {'O', 8 }, {'B', 2 },
-                {'x', 16 }, {'o', 8 }, {'b', 2 },
+                ['X'] = 16,
+                ['O'] = 8,
+                ['B'] = 2,
+                ['x'] = 16,
+                ['o'] = 8,
+                ['b'] = 2,
             };
         public NumToken(int lineNo, object value, bool isDec = true) : base(lineNo)
         {
@@ -119,24 +123,42 @@ namespace KScript
     }
 
     /// <summary>
-    /// 特殊单词
+    /// 特殊单词(用以表示特殊字符(如换行符、文件尾符等)的单词)
     /// </summary>
-    public class SpecialToken : Token
+    class PartiToken : Token
     {
-        private string instruction;
-        public override string Text { get { return instruction; } }
+        private string val;
+        public override string Text { get { return val; } }
+
+        public PartiToken(string val) : base(-1)
+        {
+            this.val = val;
+        }
+    }
+
+    /// <summary>
+    /// 指令令牌
+    /// </summary>
+    public struct InstToken
+    {
+        //常用跳转命令
+        public static string CONTINUE = "continue",
+                             BREAK = "break",
+                             RETURN = "return";
+
+        public string Inst { get; private set; }
+        //public string Text { get { return instruction; } }
         public object Arg { get; private set; }
 
-        public SpecialToken(string ins, object arg)
-            : base(-1)
+        public InstToken(string instName, object arg)  
         {
-            instruction = ins;
+            Inst = instName;
             Arg = arg;
         }
 
         public override string ToString()
         {
-            return Arg.ToString();
+            return $"{Inst} {Arg.ToString()}";
         }
     }
 }

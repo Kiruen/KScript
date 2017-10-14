@@ -1,5 +1,5 @@
 ﻿using KScript.AST;
-using KScript.Execution;
+using KScript.Runtime;
 using KScript.KSystem;
 using KScript.KSystem.BuiltIn;
 using System;
@@ -19,7 +19,6 @@ namespace KScript
         private Environment execEnv { get; set; }
 
         private Lexer lexer;
-        private StringBuilder scriptTemp;
         public double TimeSpan { get; private set; }
 
         public Evaluator(string script)
@@ -38,6 +37,11 @@ namespace KScript
             return execEnv.Get(varName);
         }
 
+        public TRes GetVariable<TRes>(string varName)
+        {
+            return execEnv.Get<TRes>(varName);
+        }
+
         public void SetVariable(string varName, object obj)
         {
             execEnv.Put(varName, obj);
@@ -49,15 +53,15 @@ namespace KScript
         /// <param name="env">执行脚本的环境</param>
         /// <param name="cleanClass">指明是否清理类自定义信息的缓存</param>
         /// <returns></returns>
-        public object ExecuteWithExt(Environment env = null, bool cleanClass = true, bool isMain = false)
+        public object Execute(Environment env = null, bool cleanClass = true, bool isMain = false)
         {
             DateTime startTime = DateTime.Now;
-            execEnv = (env == null ? new NestedEnv() : env);
+            execEnv = env ?? new NestedEnv();
             //NativeObject.CreateNativeObjs(env);
             EngineInitor.Initial(execEnv);
             if(isMain)
-                execEnv.PutInside("main", new KNameSpace(execEnv, "main"));
-            object result = Execute(execEnv);
+                execEnv.PutInside("main", new KNameSpace("main", execEnv));
+            object result = ExecuteWithNone(execEnv);
             //清空类信息缓存
             if(cleanClass)
                 ClassLoader.Clear();
@@ -71,38 +75,32 @@ namespace KScript
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public object Execute(Environment env)
+        public object ExecuteWithNone(Environment env)
         {
             object result = null;
             while (lexer.TokenCount != 0)
             {
-                ASTree ast = Parse(lexer);
+                ASTree ast = GenAST(lexer);
                 if (!(ast is NullStmnt))
                 {
                     Debugger.UpdateData(ast.LineNo, env);
                     Debugger.TrySuspend();
                     result = ast.Evaluate(env);
-                    if (result is SpecialToken)
+                    if (result is InstToken)
                     {
                         break;
-                    } 
+                    }
                 }
             }
             return result;
         }
 
-
-        public string[] GetDataTemp()
-        {
-            return execEnv.Names;
-        }
-
         /// <summary>
-        /// 进行语法分析
+        /// 进行语法分析,返回一棵AST
         /// </summary>
-        /// <param name="lexer"></param>
+        /// <param name="lexer">需要进行语法分析的单词流</param>
         /// <returns></returns>
-        public static ASTree Parse(Lexer lexer)
+        public static ASTree GenAST(Lexer lexer)
         {
             return parser.Parse(lexer);
         }

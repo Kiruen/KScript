@@ -1,4 +1,4 @@
-﻿using KScript.Execution;
+﻿using KScript.Runtime;
 using KScript.KSystem;
 using KScript.KSystem.BuiltIn;
 using KScript.Utils;
@@ -35,11 +35,10 @@ namespace KScript.AST
             base.Evaluate(env);
             StringBuilder source = new StringBuilder(Value);
             var matches = Regex.Matches(base.Text, @"\{(?<exp>.+?)\}");
-            Lexer lexer;
             foreach(Match match in matches)
             {
-                lexer = new Lexer(match.Groups["exp"].Value);
-                var ast = Evaluator.Parse(lexer);
+                Lexer lexer = new Lexer(match.Groups["exp"].Value);
+                var ast = Evaluator.GenAST(lexer);
                 var res = ast.Evaluate(env);
                 if (res == null) res = "None";
                 source.Replace(match.Value, KUtil.ToString(res));

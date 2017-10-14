@@ -1,5 +1,5 @@
 ﻿using KScript.AST;
-using KScript.Execution;
+using KScript.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace KScript.Callable
             set { }
         }
 
-        //用于创建OLFunc实例(提供无参构造函数)
+        //用于创建OLFunc实例(提供无参的构造函数,于是可以直接实例化OLFunc)
         protected Function() { }
 
         /// <summary>
@@ -52,7 +52,10 @@ namespace KScript.Callable
         /// 创建函数实例的临时作用域
         /// </summary>
         /// <returns></returns>
-        public Environment CreateNewEnv() { return new NestedEnv(outerEnv); }
+        public Environment CreateNewEnv()
+        {
+            return new NestedEnv(outerEnv);
+        }
 
         /// <summary>
         /// 对函数进行柯里化(或部分施用),并返回一个新的实例
@@ -104,7 +107,7 @@ namespace KScript.Callable
             //从调用堆栈中移除
             Debugger.PopFunc();
             //获取临时作用域返回的值并传递到上层
-            return result is SpecialToken ? (result as SpecialToken).Arg : result;
+            return result is InstToken ? ((InstToken)result).Arg : result;
         }
 
         /// <summary>
