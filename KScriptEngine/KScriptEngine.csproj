@@ -52,7 +52,7 @@
     <Compile Include="AST\BlockStmnt.cs" />
     <Compile Include="AST\ClassBody.cs" />
     <Compile Include="AST\ClassStmnt.cs" />
-    <Compile Include="AST\Closure.cs" />
+    <Compile Include="AST\LambdaExpr.cs" />
     <Compile Include="AST\Literal\SetOrDict.cs" />
     <Compile Include="AST\Visitor\VariableCollector.cs" />
     <Compile Include="AST\Visitor\Visitor.cs" />
@@ -122,7 +122,7 @@
     <Compile Include="KSystem\BuiltIn\KString.cs" />
     <Compile Include="KSystem\Callable\NativeFunc.cs" />
     <Compile Include="KSystem\NativeObject.cs" />
-    <Compile Include="KSystem\Natives.cs" />
+    <Compile Include="KSystem\EngineInitor.cs" />
     <Compile Include="KSystem\BuiltIn\KReflection.cs" />
     <Compile Include="KSystem\BuiltIn\Singleton\FileProxy.cs" />
     <Compile Include="KSystem\BuiltIn\Singleton\RegexProxy.cs" />

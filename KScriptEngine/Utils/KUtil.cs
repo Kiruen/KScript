@@ -39,7 +39,8 @@ namespace KScript.Utils
         }
 
         /// <summary>
-        /// 转换索引(tuple、str、num)
+        /// 转换索引(tuple、str、num);
+        /// 返回元组:起始索引、长度(可为负数)、间隔
         /// </summary>
         /// <param name="index">表示索引的对象</param>
         /// <param name="maxLen">线性表的最大长度</param>

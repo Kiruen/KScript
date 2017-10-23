@@ -1,4 +1,5 @@
 ﻿using KScript.AST;
+using KScript.Callable;
 using KScript.KAttribute;
 using KScript.KSystem.BuiltIn;
 using KScript.Utils;
@@ -124,6 +125,8 @@ namespace KScript.KSystem
                 return ClassLoader.GetClass("Num");
             else if (obj.GetType().IsArray)
                 return ClassLoader.GetClass("Arr");
+            else if (obj is IFunction)
+                return ClassLoader.GetClass("Callable");
             else if (obj is KObject)
                 return (obj as KObject).Read<ClassInfo>("type");
             //else if (obj is ClassInfo)
@@ -170,9 +173,16 @@ namespace KScript.KSystem
         }
 
         [MemberMap("exDiv", MapModifier.Static, MapType.Method)]
-        public static double Dict(int a, int b)
+        public static double ExDiv(int a, int b)
         {
             return a / b;
+        }
+
+        [MemberMap("pickFunc", MapModifier.Static, MapType.Method)]
+        public static IFunction PickFunc(IFunction fun, int paramLen)
+        {
+            return fun[paramLen] ?? 
+                throw new Exception("No such override version!");
         }
 
         //public static object Break()

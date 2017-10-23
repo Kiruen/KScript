@@ -26,8 +26,8 @@ namespace KScript.AST
                 Collect(ast as DeclareExpr);
             else if (ast is DefStmnt)
                 Collect(ast as DefStmnt);
-            else if (ast is Closure)
-                Collect(ast as Closure);
+            else if (ast is LambdaExpr)
+                Collect(ast as LambdaExpr);
             else if (ast is ClassStmnt)
                 Collect(ast as ClassStmnt);
             else if (ast is BlockStmnt)
@@ -95,7 +95,7 @@ namespace KScript.AST
             }
         }
 
-        public void Collect(Closure close)
+        public void Collect(LambdaExpr close)
         {
             if (TestRange(close))
             {

@@ -20,7 +20,7 @@ namespace KScript   //.Parser 类名与命名空间重名！
             var list = rule0().Sep("[").Maybe(TokenList(typeof(ListLiteral), expr)).Sep("]");
             var tuple = rule0().Sep("tup").Sep("(").Maybe(TokenList(typeof(TupleLiteral), expr)).Sep(")");
 
-            var dict = rule0()/*.Sep("dict")*/.Sep("{").Maybe(TokenList(typeof(DictLiteral), expr)).Sep("}");
+            var dict = rule0()/*.Sep("dict")*/.Sep("{").Maybe(TokenList(typeof(SetOrDictLiteral), expr)).Sep("}");
             //var set = rule0().Sep("set").Sep("{").Maybe(TokenList(typeof(SetLiteral), expr)).Sep("}");
 
 

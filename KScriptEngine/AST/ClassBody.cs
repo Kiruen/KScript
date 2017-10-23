@@ -32,6 +32,7 @@ namespace KScript.AST
         /// <summary>
         /// 用于创建类元数据时调用的初始化程序(普通、静态成员会一并初始化)
         /// 会将所有成员添加到env中,以供进一步分类、处理
+        /// 注意！静态变量的名称仍然带有@
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>

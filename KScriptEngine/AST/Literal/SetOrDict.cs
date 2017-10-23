@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace KScript.AST
 {
-    public class DictLiteral : ASTList
+    public class SetOrDictLiteral : ASTList
     {
-        public DictLiteral(List<ASTree> list) : base(list)
+        public SetOrDictLiteral(List<ASTree> list) : base(list)
         { }
 
         public override object Evaluate(Environment env)
@@ -39,15 +39,15 @@ namespace KScript.AST
         }
     }
 
-    public class SetLiteral : ASTList
-    {
-        public SetLiteral(List<ASTree> list) : base(list)
-        { }
+    //public class SetLiteral : ASTList
+    //{
+    //    public SetLiteral(List<ASTree> list) : base(list)
+    //    { }
 
-        public override object Evaluate(Environment env)
-        {
-            return new KSet(children
-                .Select(expr => expr.Evaluate(env)));
-        }
-    }
+    //    public override object Evaluate(Environment env)
+    //    {
+    //        return new KSet(children
+    //            .Select(expr => expr.Evaluate(env)));
+    //    }
+    //}
 }

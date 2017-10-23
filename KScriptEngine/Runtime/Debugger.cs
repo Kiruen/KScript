@@ -1,4 +1,5 @@
 ﻿using KScript.AST;
+using KScript.Callable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,8 +35,8 @@ namespace KScript.Runtime
 
         public static HashSet<int> BreakPoints { get; set; }
                                         = new HashSet<int>();
-        public static Stack<object> CallStack { get; set; }
-                                        = new Stack<object>(32);
+        public static Stack<IFunction> CallStack { get; set; }
+                                        = new Stack<IFunction>(32);
 
         public static int DebuggingStackLevel { get; set; }
         public static int StackLevel
@@ -44,6 +45,12 @@ namespace KScript.Runtime
         }
 
         public static int CurrLineNo { get; set; }
+
+        public static IFunction CurrentFunc
+        {
+            get { return CallStack.Count == 0 ? 
+                        null : CallStack.Peek(); }
+        }
 
         public static Action<int, Environment> OnUpdate { get;set; }
 
@@ -66,11 +73,12 @@ namespace KScript.Runtime
             CurrLineNo = lineNo;
             VarTable = env;
             //更新回调
-            if(Debugging)
+            //2017-10-23 18:04:34 新增了&& DebuggingStackLevel == StackLevel
+            if (Debugging && DebuggingStackLevel == StackLevel)
                 OnUpdate(lineNo, env);
         }
 
-        public static void PushFunc(object funcInfo)
+        public static void PushFunc(IFunction funcInfo)
         {
             if (DebuggingStackLevel <= 1024)
             {
@@ -104,7 +112,7 @@ namespace KScript.Runtime
             //如果期望步入,则更新当前调试层(变为下一层/不变(无函数可步入))
             else if (WillStepIn)
                 DebuggingStackLevel = StackLevel;
-            //尝试挂起程序执行线程
+            //尝试挂起执行脚本的线程
             if (WillStepOver && DebuggingStackLevel == StackLevel || WillStepIn)
                 TCProgram.Suspend();
         }

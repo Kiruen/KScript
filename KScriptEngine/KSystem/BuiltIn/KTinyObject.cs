@@ -15,20 +15,26 @@ namespace KScript.KSystem.BuiltIn
         protected KString TypeName { get; set; }
 
         [MemberMap("members", MapModifier.Instance, MapType.Data)]
-        public KTuple Members { get; private set; } 
+        public object[] Members { get; private set; } 
 
         [MemberMap("_cons", MapModifier.Instance, MapType.Constructor, true)]
         public KTinyObject(KString typeName, params object[] memberNames)
-            : this(typeName, new KTuple(memberNames))
-        { }
-
-        protected KTinyObject(KString typeName, KTuple memberNames)
         {
             TypeName = typeName;
             Write("type", ClassLoader.GetOrCreateClass(typeName));
             Members = memberNames;
             foreach (var name in memberNames)
+            {
                 AddMember(name.ToString(), null);
+            }
+        }
+
+        public void Initial(params object[] values)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                this.Write(this.Members[i].ToString(), values[i]);
+            }
         }
 
         //利用原型模式创建对象,节省开销,避免冲突
@@ -43,10 +49,7 @@ namespace KScript.KSystem.BuiltIn
         private static KTinyObject Instance(params object[] values)
         {
             var instance = prototype.Clone();
-            for (int i = 0; i < values.Length; i++)
-            {
-                instance.Write((KString)prototype.Members[i], values[i]);
-            }
+            instance.Initial(values);
             return instance;
         }
 

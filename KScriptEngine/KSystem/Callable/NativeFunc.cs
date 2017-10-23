@@ -65,9 +65,9 @@ namespace KScript.Callable
                 throw new KException("bad number of args in invokation", Debugger.CurrLineNo);
             object[] args = argList.Select(ast => ast.Evaluate(callerEnv)).ToArray();
             //进入调用堆栈
-            Debugger.PushFunc(Name);
+            Debugger.PushFunc(this);
             //执行方法体
-            object result = Invoke(callerEnv, args);
+            object result = result = Invoke(callerEnv, args);
             //从调用堆栈中移除
             Debugger.PopFunc();
             return result;
@@ -109,9 +109,10 @@ namespace KScript.Callable
 
             catch (Exception exc)
             {
-                throw new KException("bad native function call: " + Name +
-                        "\r\nSourceError:\r\n" + exc.Message ?? 
-                        exc.InnerException?.Message, Debugger.CurrLineNo);
+                throw new KException($"bad native function call: {Name}" +
+                            $"\r\nSourceError:\r\n{exc.Message}" +
+                            $"\r\n{exc.InnerException?.Message}",
+                            Debugger.CurrLineNo);
             }
         }
 

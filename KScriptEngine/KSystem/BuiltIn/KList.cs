@@ -39,8 +39,20 @@ namespace KScript.KSystem.BuiltIn
                 var res = IndexParser.ParseIndex(index, Count);
                 if (res.Item2 > 0)
                 {
-                    elements.RemoveRange(res.Item1, res.Item2);
-                    elements.InsertRange(res.Item1, value as IEnumerable<object>);
+                    var front = elements.Take(res.Item1);
+                    var back = elements.Skip(res.Item1 + res.Item2);
+                    //elements.RemoveRange(res.Item1, res.Item2);
+                    //elements.InsertRange(res.Item1, value as IEnumerable<object>);
+                    elements = new List<object>
+                        (front.Concat(value as IEnumerable<object>).Concat(back));
+                }
+                else if (res.Item2 < 0)
+                {
+                    var front = elements.Take(res.Item1 + res.Item2 + 1);
+                    var back = elements.Skip(res.Item1 + 1);
+                    elements = new List<object>(front
+                        .Concat((value as IEnumerable<object>).Reverse())
+                        .Concat(back));
                 }
                 else
                     elements[res.Item1] = value;

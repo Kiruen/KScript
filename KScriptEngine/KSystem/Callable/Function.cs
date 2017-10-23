@@ -19,6 +19,8 @@ namespace KScript.Callable
         public BlockStmnt Body { get; private set; }
         //函数的闭包环境(记录外部信息的环境)
         protected Environment outerEnv;
+        //记录函数对象维护的静态环境(内含与单函数实例对应的静态变量)
+        protected Environment staticEnv;
 
         /// <summary>
         /// 根据参数表长度获取具有对应签名的函数实例
@@ -46,6 +48,23 @@ namespace KScript.Callable
             Parameters = parameters;
             Body = body;
             outerEnv = env;
+            //用于缓存静态值,介于函数零时环境和函数调用环境之间
+            staticEnv = new NestedEnv(outerEnv);
+        }
+
+        public object GetStaticVar(string varName)
+        {
+            return staticEnv.Get(varName);
+        }
+
+        public void SetStaticVar(string varName, object val)
+        {
+            staticEnv.PutInside(varName, val);
+        }
+
+        public bool HasStaticVar(string varName)
+        {
+            return staticEnv.Contains(varName);
         }
 
         /// <summary>
@@ -54,7 +73,7 @@ namespace KScript.Callable
         /// <returns></returns>
         public Environment CreateNewEnv()
         {
-            return new NestedEnv(outerEnv);
+            return new NestedEnv(staticEnv); //outerEnv
         }
 
         /// <summary>
@@ -101,7 +120,7 @@ namespace KScript.Callable
             //添加隐含对象
             //newEnv.PutInside("args", )
             //进入调用堆栈
-            Debugger.PushFunc($"{Name} {Parameters}");
+            Debugger.PushFunc(this);    //$"{Name} {Parameters}"
             //执行方法体
             object result = Body.Evaluate(newEnv);
             //从调用堆栈中移除

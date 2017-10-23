@@ -42,9 +42,9 @@ namespace KScript
             //       .Sep("func").Ast(paramlist).Ast(block));
             //定义闭包、lambda表达式
             primary.InsertChoice(rule0().Or(
-                rule(typeof(Closure)).Sep("func")
+                rule(typeof(LambdaExpr)).Sep("func")
                 .Ast(paramlist).Ast(block),
-                rule(typeof(Closure)).Sep("$")
+                rule(typeof(LambdaExpr)).Sep("$")
                 .Or(paramlist, parames)
                 //为了兼容lambda表达式,特此修改匹配顺序。
                 //之前的顺序:expr, block。

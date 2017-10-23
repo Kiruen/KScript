@@ -91,6 +91,18 @@ namespace KScript.KSystem.BuiltIn
             return elements.Min(x => selector.Invoke(null, x));
         }
 
+        [MemberMap("sum", MapModifier.Instance, MapType.Method)]
+        public double Sum(IFunction selector)
+        {
+            return elements.Sum(x => Convert.ToDouble(selector.Invoke(null, x)));
+        }
+
+        [MemberMap("sum", MapModifier.Instance, MapType.Method)]
+        public double Sum()
+        {
+            return elements.Select(x => Convert.ToDouble(x)).Sum();
+        }
+
         [MemberMap("count", MapModifier.Instance, MapType.Method)]
         public double Count(IFunction selector)
         {

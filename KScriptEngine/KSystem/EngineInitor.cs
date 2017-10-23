@@ -11,6 +11,12 @@ namespace KScript.KSystem
 {
     public static class EngineInitor
     {
+        private static string[] sysTypes =
+        {
+            "Type",
+            "Arr", "Num", "None", "Callable"
+        };
+
         /// <summary>
         /// 加载全局性的程序模块(如全局对象、全局函数)
         /// 之所以不设置为静态构造函数是因为有些对象需要先被构造
@@ -30,13 +36,13 @@ namespace KScript.KSystem
         public static void LoadNativeObjs(Environment env)
         {
             //加载原生类型
-            env.PutInside("Type", ClassLoader.GetOrCreateClass("Type"));
-            //env.PutInside("Namespace", ClassLoader.GetOrCreateClass("Namespace"));
-            //env.PutInside("Str", ClassLoader.GetOrCreateClass("Str"));
-            //env.PutInside("Dict", ClassLoader.GetOrCreateClass("Dict"));
-            env.PutInside("Arr", ClassLoader.GetOrCreateClass("Arr"));
-            env.PutInside("Num", ClassLoader.GetOrCreateClass("Num"));
-            env.PutInside("None", ClassLoader.GetOrCreateClass("None"));
+            //env.PutInside("Type", ClassLoader.GetOrCreateClass("Type"));
+            //env.PutInside("Arr", ClassLoader.GetOrCreateClass("Arr"));
+            //env.PutInside("Num", ClassLoader.GetOrCreateClass("Num"));
+            //env.PutInside("None", ClassLoader.GetOrCreateClass("None"));
+            //env.PutInside("Callable", ClassLoader.GetOrCreateClass("Callable"));
+            foreach (var typeName in sysTypes)
+                env.PutInside(typeName, ClassLoader.GetOrCreateClass(typeName));
             KBuiltIn.IniBuitInClasses();
             //将ClassLoader中的所有内建类型放入环境中
             ClassLoader.DumpInto(env);

@@ -37,7 +37,7 @@ namespace KScript
             if (clean)
             {
                 scriptTemp.Clear();
-            } 
+            }
         }
     }
 }
