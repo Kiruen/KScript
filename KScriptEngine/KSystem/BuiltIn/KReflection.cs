@@ -50,26 +50,26 @@ namespace KScript.KSystem.Reflection
         {
             get
             {
-                return Method.Body.ToString();
+                return FuncDef.Body.ToString();
             }
         }
         public string Signature
         {
             get
             {
-                return Name + Method.Parameters.ToString();
+                return Name + FuncDef.Parameters.ToString();
             }
         }
-        public Function Method { get; private set; }
+        public DefStmnt FuncDef { get; private set; }
         public int ParamsLength { get; private set; }
         public string[] ParamNames { get; private set; }
 
-        public KMethodInfo(string fldName, Function func, Environment outer) 
+        public KMethodInfo(string fldName, DefStmnt def, Environment outer) 
             : base(fldName, outer)
         {
-            Method = func;
-            var paramList = func.Parameters;
-            ParamsLength = func.Parameters.Length;
+            FuncDef = def;
+            var paramList = def.Parameters;
+            ParamsLength = paramList.Length;
             ParamNames = paramList.ParamNames.ToArray();
             //var list = paramList.ToList();
             //list.Insert(0, new ASTLeaf(new IdToken(-1, "invoker")));

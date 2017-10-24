@@ -30,16 +30,42 @@ namespace KScript.AST
         }
 
         /// <summary>
-        /// 用于创建类元数据时调用的初始化程序(普通、静态成员会一并初始化)
-        /// 会将所有成员添加到env中,以供进一步分类、处理
-        /// 注意！静态变量的名称仍然带有@
+        /// 用于创建类元数据时调用的初始化程序
+        /// 会将所有静态成员添加到env中,以供进一步分类、处理
+        /// 非静态成员将打包返回
+        /// 注意！静态变量的名称将不再带有@
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public void IniForClassInfo(Environment env)
+        public List<ASTree> InitForClassInfo(string className, Environment env)
         {
-            foreach (var member in this)
-                member.Evaluate(env);
+            //foreach (var member in this)
+            //    member.Evaluate(env);
+            List<ASTree> nonStaticTemp = new List<ASTree>(16);
+            foreach (var ast in this)
+            {
+                if(ast is DefStmnt) 
+                {
+                    var def = ast as DefStmnt;
+                    if (def.IsStatic || def.Name == className)
+                        def.Evaluate(env);
+                    else
+                        nonStaticTemp.Add(def);
+                }
+                else if (ast is DeclareExpr)
+                {
+                    var decl = ast as DeclareExpr;
+                    if (decl.IsStatic)
+                        decl.Evaluate(env);
+                    else
+                        nonStaticTemp.Add(decl);
+                }
+                else if (!(ast is InstExpr && (ast as InstExpr).InstName == "using"))
+                {
+                    throw new KException("Invalid expression in class body!", ast.LineNo);
+                }
+            }
+            return nonStaticTemp;
         }
 
         public void InsertDef(DefStmnt def)

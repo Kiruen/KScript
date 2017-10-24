@@ -16,6 +16,7 @@ namespace KScript.AST
             if (list[0] is Modifier)
             {
                 var temp = list[0];
+                //从原始的语法树中去除修饰符(这样第一个子树就是名字)
                 list.RemoveAt(0);
                 Modifier = temp as Modifier;
                 IsStatic = Modifier.Name == "@";
@@ -39,7 +40,7 @@ namespace KScript.AST
 
         public override object Evaluate(Environment env)
         {
-            var totalName = Modifier?.Name + Name;
+            var totalName = Name;   //Modifier?.Name + Name;
             var newFunc = new Function(Name, Parameters, Body, env);
             if (env.Contains(totalName))
             {

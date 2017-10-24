@@ -2,6 +2,7 @@
 using KScript.KSystem;
 using KScript.KSystem.BuiltIn;
 using KScript.KSystem.Reflection;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace KScript.AST
@@ -30,35 +31,41 @@ namespace KScript.AST
         public KFieldInfo[] Fields { get; private set; }
         public KMethodInfo[] Methods { get; private set; }
 
-        //创建基本类型对象
-        public ClassInfo(string name, Environment outer = null)
+        /// <summary>
+        /// 创建基本类型对象
+        /// </summary>
+        /// <param name="name">类型名称</param>
+        /// <param name="outer">定义类型的环境</param>
+        /// <param name="willComplete">指明在构造函数执行完毕后此Class是否属于完整的Class</param>
+        public ClassInfo(string name, Environment outer = null, bool willComplete = true)
             : base(new NestedEnv(outer))
         {
             Name = name;
             DeclareEnv = outer;             //定义该类型的环境,可为空(全局性)
             ClassLoader.Load(this);         //向类加载器加载此对象
-            PutCommonFields();
+            if(willComplete)
+                PutCommonFields();
         }
 
         //设计极不合理！亟待优化
         //在基本类型的基础上创建自定义类型对象
-        public ClassInfo(ClassStmnt def, Environment outer)
-            :this(def.Name, outer)
+        public ClassInfo(ClassStmnt classDef, Environment outer)
+            :this(classDef.Name, outer, false)
         {
-            definition = def;
-            //初始化成员(执行成员的定义,隐藏内部维护的成员(以'-'开头的非用户使用字段))
-            InitStaticMember(def, outer);
+            definition = classDef;
+            //初始化成员(执行静态成员的定义,返回非静态成员的AST
+            //注意,对于declar语句,不会拆分其中的若干表达式)
+            List<ASTree> nonStaticTemp = InitMembers(classDef, outer);
             //整合各种反射信息
-            Fields = innerEnv.Names
-                     .Where(n => !n.StartsWith("-"))
-                     .Where(n => !(innerEnv.Get(n) is Function))
-                     .Select(n => new KFieldInfo(n, outer))
+            Fields = nonStaticTemp
+                     .OfType<DeclareExpr>()
+                     .SelectMany(decl => decl.Children)
+                     .Select(expr => (expr[0] as ASTLeaf).Text)
+                     .Select(name => new KFieldInfo(name, outer))
                      .ToArray();
-            Methods = innerEnv.Names
-                     .Where(n => !n.StartsWith("-"))
-                     .Where(n => innerEnv.Get(n) is Function)
-                     .SelectMany(n => innerEnv.Get<OLFunction>(n),
-                      (n, func) => new KMethodInfo(n, func as Function, outer))
+            Methods = nonStaticTemp
+                     .OfType<DefStmnt>()
+                     .Select(_def => new KMethodInfo(_def.Name, _def, outer))
                      .ToArray();
             //完善构造函数(注意！这里只是改变Body的内容,因为此处
             //的Body和defstamnt共用一个body
@@ -69,19 +76,6 @@ namespace KScript.AST
                 .ToArray();
                 innerEnv.UpdateName(Name, "_cons");
             }
-            //留下静态成员
-            innerEnv.Names
-                 //.OrderBy(x => x[0])  将静态成员排在前面防止同名成员被删除
-                 //不再支持同名成员(指非静态和静态重名)
-                 .Where(name => !name.StartsWith("-"))
-                 .Select(name =>
-                 {
-                     if (!name.StartsWith("@"))
-                         innerEnv.RemoveInside(name);
-                     else
-                         innerEnv.UpdateName(name, name.Substring(1));
-                     return 0;
-                 }).ToArray();
             //添加隐含静态成员(一定要最后添加,因为很多对象都需要先进行构建)
             innerEnv.PutInside("getMethod", new NativeFunc("GetMethodInfo", this));
             innerEnv.PutInside("fields", Fields);
@@ -97,7 +91,15 @@ namespace KScript.AST
             innerEnv.PutInside("name", Name);
         }
 
-        public void InitStaticMember(ClassStmnt def, Environment outer)
+        /// <summary>
+        /// 初始化静态成员; 
+        /// 返回一个非静态成员集合以供构造元数据; 
+        /// 修改构造函数的名称和部分定义
+        /// </summary>
+        /// <param name="def"></param>
+        /// <param name="outer"></param>
+        /// <returns></returns>
+        public List<ASTree> InitMembers(ClassStmnt def, Environment outer)
         {
             object obj = outer.Get(def.SuperClass);   //向外层查询父类info
             if (obj == null)
@@ -111,7 +113,7 @@ namespace KScript.AST
             else
                 throw new KException("unknown super class: " + def.SuperClass, def, def.LineNo);
             //执行类体中的所有语句
-            Body.IniForClassInfo(innerEnv);
+            return Body.InitForClassInfo(Name, innerEnv);
         }
 
         public KMethodInfo GetMethodInfo(KString methodName)

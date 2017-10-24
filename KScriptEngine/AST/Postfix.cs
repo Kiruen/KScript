@@ -123,7 +123,7 @@ namespace KScript.AST
                 //上面两句位置一定不能对调！
                 innerEnv.PutInside("super", super);          //仿照js的prototype模式
             }
-            info.Body.Evaluate(innerEnv);                   //会向当前环境里添加变量、函数实例等
+            info.Body.Evaluate(innerEnv);                    //会向当前环境里添加变量、函数实例等
             //向类定义中附加一份内部构造函数(初始化用),以供子类调用
             //注意,此处的_init是不带返回值的_cons,先于_cons被构造
             var initor = new OLFunction();

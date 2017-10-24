@@ -138,7 +138,8 @@ namespace KScript.KSystem
             //MainScope直接相邻)。不可能仅给某个对象一个孤立的内部环境
             Environment env = innerEnv.Where(member);
             //判断是否是从当前环境或其父类环境(继承性环境)找到的该变量
-            //-class用于标记是否为对象环境,做到访问成员时与其他环境隔离
+            //-class用于标记通过对象句点访问到的变量是否在对象的内环境中
+            //(而不是非对象内部的环境中),做到句点访问成员时与其他环境隔离
             if (env != null && (env == innerEnv || env.Contains("-class")))         
                 return env;
             else
