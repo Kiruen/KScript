@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AST\Literal\InitalList.cs" />
     <Compile Include="AST\Literal\ListLiteral.cs" />
     <Compile Include="AST\ASTLeaf.cs" />
     <Compile Include="AST\ASTList.cs" />
@@ -54,11 +55,12 @@
     <Compile Include="AST\ClassStmnt.cs" />
     <Compile Include="AST\LambdaExpr.cs" />
     <Compile Include="AST\Literal\SetOrDict.cs" />
+    <Compile Include="AST\Visitor\Translator.cs" />
     <Compile Include="AST\Visitor\VariableCollector.cs" />
     <Compile Include="AST\Visitor\Visitor.cs" />
     <Compile Include="Runtime\Debugger.cs" />
     <Compile Include="Legacy\Pair.cs" />
-    <Compile Include="AST\Literal\TupleLiteral.cs" />
+    <Compile Include="AST\Literal\LValueTuple.cs" />
     <Compile Include="AST\DeclareExpr.cs" />
     <Compile Include="AST\DefStmnt.cs" />
     <Compile Include="AST\CommaExpr.cs" />

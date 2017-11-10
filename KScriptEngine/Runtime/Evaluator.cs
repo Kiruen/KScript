@@ -55,7 +55,6 @@ namespace KScript
         /// <returns></returns>
         public object Execute(Environment env = null, bool cleanClass = true, bool isMain = false)
         {
-            DateTime startTime = DateTime.Now;
             execEnv = env ?? new NestedEnv();
             //NativeObject.CreateNativeObjs(env);
             EngineInitor.Initial(execEnv);
@@ -65,8 +64,6 @@ namespace KScript
             //清空类信息缓存
             if(cleanClass)
                 ClassLoader.Clear();
-            TimeSpan span = DateTime.Now - startTime;
-            TimeSpan = span.TotalMilliseconds;
             return result;
         }
 
@@ -78,6 +75,7 @@ namespace KScript
         public object ExecuteWithNone(Environment env)
         {
             object result = null;
+            DateTime startTime = DateTime.Now;
             while (lexer.TokenCount != 0)
             {
                 ASTree ast = GenAST(lexer);
@@ -92,6 +90,8 @@ namespace KScript
                     }
                 }
             }
+            TimeSpan span = DateTime.Now - startTime;
+            TimeSpan = span.TotalMilliseconds;
             return result;
         }
 

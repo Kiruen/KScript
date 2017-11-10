@@ -24,13 +24,19 @@ namespace KScript.AST
         }
 
         public string Name
-        { get { return ((ASTLeaf)children[0]).Text; }  }
+        {
+            get { return ((ASTLeaf)children[0]).Text; }
+        }
 
         public ParameterList Parameters
-        { get { return (ParameterList)children[1]; } }
+        {
+            get { return (ParameterList)children[1]; }
+        }
 
         public BlockStmnt Body
-        { get { return (BlockStmnt)children[2]; } }
+        {
+            get { return (BlockStmnt)children[2]; }
+        }
 
         //-----------------------------//
         public Modifier Modifier { get; private set; }

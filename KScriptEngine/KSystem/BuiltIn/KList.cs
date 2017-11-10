@@ -37,7 +37,8 @@ namespace KScript.KSystem.BuiltIn
             set
             {
                 var res = IndexParser.ParseIndex(index, Count);
-                if (res.Item2 > 0)
+                //[x:x]or[x]
+                if (res.Item2 > 0 || res.Item2 == 0 && res.Item3 != 0)
                 {
                     var front = elements.Take(res.Item1);
                     var back = elements.Skip(res.Item1 + res.Item2);
@@ -55,7 +56,9 @@ namespace KScript.KSystem.BuiltIn
                         .Concat(back));
                 }
                 else
+                {
                     elements[res.Item1] = value;
+                }     
             }
         }
 
@@ -75,6 +78,12 @@ namespace KScript.KSystem.BuiltIn
         {
             //vector.AddRange(obj);
             elements = objs.ToList();
+        }
+
+        [MemberMap("insert", MapModifier.Instance, MapType.Method)]
+        public void Insert(int index, object obj)
+        {
+            elements.Insert(index, obj);
         }
 
         [MemberMap("add", MapModifier.Instance, MapType.Method, true)]

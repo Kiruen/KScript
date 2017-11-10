@@ -147,6 +147,12 @@ namespace KScript.KSystem
             return new KDict();
         }
 
+        [MemberMap("tup", MapModifier.Static, MapType.Method, true)]
+        public static KTuple Tuple(params object[] objs)
+        {
+            return new KTuple(objs);
+        }
+
         [MemberMap("toBig", MapModifier.Static, MapType.Method)]
         public static KString ToBig(object num)
         {

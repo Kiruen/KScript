@@ -11,6 +11,7 @@ namespace KScript
 {
     public class Parser
     {
+        public string Name { get; protected set; }
         protected List<Element> elements;
         protected Factory factory;
 
@@ -33,7 +34,7 @@ namespace KScript
 
         public static Parser Rule(Type nodeType)
         {
-            return new Parser(nodeType);
+            return new Parser(nodeType) { Name = nodeType?.Name ?? "Unknown" };
         }
 
         public static Parser Rule<T>()
@@ -206,10 +207,19 @@ namespace KScript
             return this;
         }
 
+        public override string ToString()
+        {
+            return $"{Name}";
+        }
+
         public abstract class Element
         {
             public abstract void Parse(Lexer lexer, List<ASTree> res);
             public abstract bool Match(Lexer lexer);
+            public override string ToString()
+            {
+                return $"{GetType().Name}";
+            }
         }
 
         public class Repeat : Element
@@ -258,7 +268,7 @@ namespace KScript
                 {
                     if (patterns.Contains(token.Text))
                     {
-                        IHaveFound(res, token);
+                        OnTokenFound(res, token);
                         return;
                     }
                 }
@@ -274,14 +284,15 @@ namespace KScript
                 Token token = lexer.Peek(0);
                 if (token is IdToken || token is SymToken) //  || token.Text == Token.EOL
                 {
-                    foreach (var pattern in patterns)
-                        if (pattern == token.Text)
-                            return true;
+                    return patterns.Contains(token.Text);
+                    //foreach (var pattern in patterns)
+                    //    if (pattern == token.Text)
+                    //        return true;
                 }
                 return false;
             }
 
-            protected virtual void IHaveFound(List<ASTree> res, Token t)
+            protected virtual void OnTokenFound(List<ASTree> res, Token t)
             {
                 res.Add(new ASTLeaf(t));
             }
@@ -292,7 +303,7 @@ namespace KScript
             public Skip(string[] pat) : base(pat)
             { }
 
-            protected override void IHaveFound(List<ASTree> res, Token t)
+            protected override void OnTokenFound(List<ASTree> res, Token t)
             { /* Skip: Do nothing. */ }
         }
 

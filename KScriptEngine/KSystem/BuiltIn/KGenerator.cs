@@ -1,5 +1,6 @@
 ﻿using KScript.Callable;
 using KScript.KAttribute;
+using KScript.Runtime;
 using KScript.Utils;
 using System;
 using System.Collections;
@@ -24,7 +25,15 @@ namespace KScript.KSystem.BuiltIn
         [MemberMap("where", MapModifier.Instance, MapType.Method)]
         public KGenerator Where(IFunction fun)
         {
-            return new KGenerator
+            if (fun.IsOLFuncSet)
+                fun = fun[2] ?? fun[1] ??
+                    throw new KException("No matched function!", Debugger.CurrLineNo);
+            if (fun.ParamsLength == 2)
+                return new KGenerator
+                    (elements.Where
+                    ((e, x) => Convert.ToBoolean(fun.Invoke(null, e, (double)x))));
+            else
+                return new KGenerator
                     (elements.Where
                     (e => Convert.ToBoolean(fun.Invoke(null, e))));
         }
@@ -32,9 +41,25 @@ namespace KScript.KSystem.BuiltIn
         [MemberMap("map", MapModifier.Instance, MapType.Method)]
         public KGenerator Map(IFunction fun)
         {
+            if (fun.IsOLFuncSet)
+                fun = fun[2] ?? fun[1] ??
+                    throw new KException("No matched function!", Debugger.CurrLineNo);
+            if (fun.ParamsLength == 2)
+                return new KGenerator
+                        (elements.Select
+                        ((e, i) => fun.Invoke(null, e, (double)i)));
+            else
+                return new KGenerator
+                        (elements.Select
+                        (e => fun.Invoke(null, e)));
+        }
+
+        [MemberMap("spread", MapModifier.Instance, MapType.Method)]
+        public KGenerator Spread(IFunction setSelector)
+        {
             return new KGenerator
-                    (elements.Select
-                    (e => fun.Invoke(null, e)));
+                    (elements.SelectMany
+                    (e => setSelector.Invoke(null, e) as IEnumerable<object>));
         }
 
         [MemberMap("reverse", MapModifier.Instance, MapType.Method)]
@@ -133,6 +158,12 @@ namespace KScript.KSystem.BuiltIn
             return new KList(elements);
         }
 
+        [MemberMap("toSet", MapModifier.Instance, MapType.Method)]
+        public KSet ToSet()
+        {
+            return new KSet(elements);
+        }
+
         [MemberMap("toDict", MapModifier.Instance, MapType.Method)]
         public KDict ToDict(IFunction keySelector, IFunction valSelector)
         {
@@ -144,8 +175,17 @@ namespace KScript.KSystem.BuiltIn
         [MemberMap("forEach", MapModifier.Instance, MapType.Method)]
         public void ForEach(IFunction action)
         {
-            foreach (var val in elements)
-                action.Invoke(null, val);
+            if (action.ParamsLength == 2)
+            {
+                int indexer = 0;
+                foreach (var val in elements)
+                    action.Invoke(null, val, indexer++);
+            }
+            else
+            {
+                foreach (var val in elements)
+                    action.Invoke(null, val);
+            }
         }
 
         [MemberMap("range", MapModifier.Static, MapType.Method)]
@@ -156,6 +196,24 @@ namespace KScript.KSystem.BuiltIn
                            .Select(x =>(object)(double)x));
         }
 
+        [MemberMap("random", MapModifier.Static, MapType.Method)]
+        public static KGenerator Random(int start, int end, int count)
+        {
+            Random ran = new Random();
+            return new KGenerator
+                (Enumerable.Range(0, count)
+                           .Select(x => (object)(double)ran.Next(start, end)));
+        }
+
+        [MemberMap("random", MapModifier.Static, MapType.Method)]
+        public static KGenerator Random(int count)
+        {
+            Random ran = new Random();
+            return new KGenerator
+                (Enumerable.Range(0, count)
+                           .Select(x => (object)ran.NextDouble()));
+        }
+
         public override KString ToStr()
         {
             return KUtil.ToString(elements);
@@ -163,7 +221,7 @@ namespace KScript.KSystem.BuiltIn
 
         public IEnumerator<object> GetEnumerator()
         {
-            yield return elements;
+            return elements.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

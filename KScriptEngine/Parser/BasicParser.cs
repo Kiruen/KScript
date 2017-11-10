@@ -18,7 +18,7 @@ namespace KScript
                 "}", Token.EOL, "if", "else", "other", "for", "foreach",
                 "in", "match", "when", "while", "@", "*",
                 "try", "catch", "default", "extends", "class", "var", "def",
-                "tup", /*"dict", "set"*/
+                "`"/*"tup", "dict", "set"*/
             };
 
         public readonly static string[]
@@ -77,7 +77,11 @@ namespace KScript
                     .Or(rule0().Sep("(").Ast(expr0).Sep(")") //加括号的表达式,直接返回表达式的AST,无需Shift
                    //, rule(typeof(MallocStmnt)).Sep("new").Sep("Array")
                    // .Rep(rule0().Sep("[").Ast(expr0).Sep("]"))
-                   , rule(typeof(InstExpr)).AddToken("using").AddStr(typeof(StringLiteral)).Maybe(rule0().Sep(":").Ast(TokenList(null, rule0().AddId(reserved))))
+                   , rule(typeof(InstExpr)).AddToken("using")
+                                        .AddStr(typeof(StringLiteral))
+                                        .Maybe(rule0().Sep(":")
+                                        .Ast(ElementList(rule0()
+                                        .AddId(reserved))))
                    , rule(typeof(InstExpr)).AddToken(instruction).Maybe(expr0)
                    , rule0().AddNum(typeof(NumberLiteral))
                    , rule0().AddId(typeof(VarName), reserved)
@@ -101,8 +105,9 @@ namespace KScript
               .Ast(factor).Sep("and").Ast(factor));*/
 
             //逗号表达式
-            commaExpr = rule(typeof(CommaExpr)).Ast(expr)
-                       .Rep(rule0().Sep(",").Ast(expr));
+            //commaExpr = rule(typeof(CommaExpr)).Ast(expr)
+            //           .Rep(rule0().Sep(",").Ast(expr));
+            commaExpr = ElementList(expr, typeof(CommaExpr));
 
             Parser statement0 = rule0();
             //"1"是数字,不会被sep或addToken检测到
@@ -166,10 +171,11 @@ namespace KScript
             //句也算)所以不能用main概括program
         }
 
-        public Parser TokenList(Type rootType, Parser tokenType)
+        //制造一个分析"由同种AST组成的序列(a,b,...)"的分析器
+        public Parser ElementList(Parser eleParser, Type rootType = null)
         {
             Parser root = (rootType == null ? rule0() : rule(rootType));
-            return root.Ast(tokenType).Rep(rule0().Sep(",").Ast(tokenType));
+            return root.Ast(eleParser).Rep(rule0().Sep(",").Ast(eleParser));
         }
 
         public ASTree Parse(Lexer lexer)

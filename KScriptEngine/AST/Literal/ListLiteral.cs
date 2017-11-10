@@ -10,24 +10,24 @@ namespace KScript.AST
 {
     public class ListLiteral : ASTList
     {
-        public string Type { get; private set; }
-
+        protected InitalList InitList { get; set; }
         public int Size
         {
             get { return ChildrenCount; }
         }
 
-        public ListLiteral(List<ASTree> list) : base(list) { }
+        public ListLiteral(List<ASTree> list) : base(list)
+        {
+            InitList = list[0] as InitalList;
+        }
 
         public override object Evaluate(Environment env)
         {
-            //List<object> list = new List<object>(8);
-            //foreach (ASTree ast in children)
-            //    list.Add(ast.Evaluate(env));
-            //return list;
             KList list = new KList(8);
-            foreach (ASTree ast in children)
+            foreach (ASTree ast in InitList)
+            {
                 list.Add(ast.Evaluate(env));
+            }
             return list;
         }
     }

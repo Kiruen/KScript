@@ -60,7 +60,7 @@ namespace KScript.KSystem
         }
 
         /// <summary>
-        /// 将常驻内存中的类信息对象放入主环境中
+        /// 将常驻运行时环境中的类信息对象放入主环境中
         /// </summary>
         /// <param name="mainEnv"></param>
         public static void DumpInto(Environment mainEnv)

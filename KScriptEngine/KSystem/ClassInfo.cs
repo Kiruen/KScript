@@ -67,15 +67,19 @@ namespace KScript.AST
                      .OfType<DefStmnt>()
                      .Select(_def => new KMethodInfo(_def.Name, _def, outer))
                      .ToArray();
-            //完善构造函数(注意！这里只是改变Body的内容,因为此处
-            //的Body和defstamnt共用一个body
-            if (innerEnv.Contains(Name))
-            {
-                innerEnv.Get<OLFunction>(Name)
-                .Select(cons => cons.Body.InsertCode("return this;"))
-                .ToArray();
-                innerEnv.UpdateName(Name, "_cons");
-            }
+            //完善构造函数(注意！这里只是改变Body的内容,
+            //因为此处的Body和defStamnt共用一个Body对象)
+            nonStaticTemp.OfType<DefStmnt>()
+                         .Where(func => func.Name == this.Name)
+                         .Select(consDef => consDef.Body.InsertCode("return this;"))
+                         .ToArray();
+            //if (innerEnv.Contains(Name))
+            //{
+            //    innerEnv.Get<OLFunction>(Name)
+            //    .Select(cons => cons.Body.InsertCode("return this;"))
+            //    .ToArray();
+            //    innerEnv.UpdateName(Name, "_cons");
+            //}
             //添加隐含静态成员(一定要最后添加,因为很多对象都需要先进行构建)
             innerEnv.PutInside("getMethod", new NativeFunc("GetMethodInfo", this));
             innerEnv.PutInside("fields", Fields);
@@ -113,7 +117,7 @@ namespace KScript.AST
             else
                 throw new KException("unknown super class: " + def.SuperClass, def, def.LineNo);
             //执行类体中的所有语句
-            return Body.InitForClassInfo(Name, innerEnv);
+            return Body.InitForClassInfo(innerEnv);
         }
 
         public KMethodInfo GetMethodInfo(KString methodName)

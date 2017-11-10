@@ -11,6 +11,7 @@ namespace KScript.Callable
     //C#原生函数代理
     public class NativeFunc : NativeMember, IFunction
     {
+        public virtual bool IsOLFuncSet => false;
         public int ParamsLength { get; private set; }
 
         /// <summary>
@@ -158,6 +159,7 @@ namespace KScript.Callable
     {
         public static readonly int POS_OF_VARLEN = 10;
         private NativeFunc[] functions = new NativeFunc[11];
+        public virtual bool IsOLFuncSet => true;
 
         public override IFunction this[int i]
         {

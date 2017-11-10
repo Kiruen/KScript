@@ -12,11 +12,13 @@ namespace KScript.Callable
     {
         public string Name { get; set; }
         public ParameterList Parameters { get; private set; }
-        public int ParamsLength
+        public virtual bool IsOLFuncSet => false;
+        public virtual int ParamsLength
         {
             get { return Parameters.Length; }
         }
         public BlockStmnt Body { get; private set; }
+
         //函数的闭包环境(记录外部信息的环境)
         protected Environment outerEnv;
         //记录函数对象维护的静态环境(内含与单函数实例对应的静态变量)
@@ -173,6 +175,11 @@ namespace KScript.Callable
     {
         public static readonly int POS_OF_VARLEN = 10;
         private Function[] functions = new Function[11];
+        public override bool IsOLFuncSet => true;
+        public override int ParamsLength
+        {
+            get { return 0; }
+        }
 
         public override IFunction this[int i]
         {

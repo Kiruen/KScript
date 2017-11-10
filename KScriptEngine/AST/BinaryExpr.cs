@@ -30,11 +30,11 @@ namespace KScript.AST
         public override object Evaluate(Environment env)
         {
             if("=" == Operator)
-                return Assign(env, Right.Evaluate(env));
+                return Assign(Left, Right.Evaluate(env), env);
             else if (BasicParser.operators[Operator].Level == BasicParser.ASSIGN_OP 
                                               && Operator[Operator.Length - 1] == '=')
                 //复合赋值运算符
-                return ComputeThenAssign(env, Operator, Right.Evaluate(env));
+                return ComputeThenAssign(Operator, Right.Evaluate(env), env);
             else if (Operator == "&&" || Operator == "||" || 
                         Operator == "and" || Operator == "or")
             {
@@ -45,64 +45,10 @@ namespace KScript.AST
                 return Compute(Left.Evaluate(env), Operator, Right.Evaluate(env));
         }
 
-        protected object Assign(Environment env, object rValue)
-        {
-            if (Left is VarName)
-            {
-                env.Put((Left as VarName).Name, rValue);
-            }
-            else if(Left is PrimaryExpr)    //It means that left is an member_access(句点引用)
-            {
-                PrimaryExpr prefix = Left as PrimaryExpr;
-                //如果有后缀
-                if(prefix.HasPostfix(0))
-                {
-                    Postfix postfix = prefix.Postfix(0);
-                    /*obj.func1().x = 3
-                      => <obj.func1()>.x = 3
-                      => <<obj.func1>()>.x = 3
-                      => <obj_func1()>.x = 3
-                      => p.x = 3 */
-                    if (postfix is Dot)
-                    {
-                        object access = prefix.EvalSubExpr(env, 1);
-                        if (access is KObject)
-                            return SetField((KObject)access, (Dot)prefix.Postfix(0), rValue);
-                    }
-                    else if(postfix is ArrayRef)
-                    {
-                        object obj = prefix.EvalSubExpr(env, 1);
-                        ArrayRef arrayRef = postfix as ArrayRef;
-                        object index = arrayRef.Index.Evaluate(env);
-                        if (obj is object[])
-                        {
-                            (obj as object[])[Convert.ToInt32(index)] = rValue;
-                        }
-                        else if (obj is List<object>)
-                        {
-                            (obj as List<object>)[Convert.ToInt32(index)] = rValue;
-                        }
-                        //else if (obj is Indexable)
-                        //{
-                        //    (obj as Indexable)[index] = rValue;
-                        //}
-                        //调用索引器
-                        else if (obj is KObject)
-                        {
-                            var method = obj.GetType().GetMethod("set_Item");
-                            if (method != null)
-                                method.Invoke(obj, new[] { index, rValue });
-                            else
-                                Arguments.Call((obj as KObject)
-                                    .Read<IFunction>("setter"), env, index, rValue);
-                        }
-                    }
-                }
-            }
-            else
-                throw new KException("Bad assignment", LineNo);
-            return rValue;
-        }
+        //protected object Assign(Environment env, object rValue)
+        //{
+        //    return Assign(env, Left, rValue);
+        //}
 
         protected object Compute(object left, string op, object right)
         {
@@ -229,25 +175,11 @@ namespace KScript.AST
             }
         }
 
-        protected object ComputeThenAssign(Environment ev, string op, object right)
+        protected object ComputeThenAssign(string op, object right, Environment ev)
         {
             op = op.Substring(0, op.Length - 1);
             object result = Compute(Left.Evaluate(ev), op, right);
-            return Assign(ev, result);
-        }
-
-        //为对象的成员字段赋值
-        protected object SetField(KObject obj, Dot expr, object rvalue)
-        {
-            string name = expr.Name;    //获取.后面的成员名称
-            try
-            {
-                obj.Write(name, rvalue);
-                return rvalue;
-            }
-            catch {
-                throw new KException("Bad member access: " + name, LineNo);
-            }
+            return Assign(Left, result, ev);
         }
 
         protected object InvokeOpOverload(object left, string olName, object right)
@@ -287,6 +219,83 @@ namespace KScript.AST
                     return func.Invoke(null, arg);
             }
             throw new KException("Unsupported operator overload!", LineNo);
+        }
+
+        public static object Assign(ASTree left, object rValue, Environment env)
+        {
+            if (left is VarName varName)            //普通变量
+            {
+                env.Put(varName.Name, rValue);
+            }
+            else if (left is LValueTuple lTuple)   //左值元组
+            {
+                lTuple.Assign(rValue, env);
+            }
+            else if (left is PrimaryExpr prefix)    //It means that left is an member_access(句点引用)
+            {
+                //如果有后缀
+                if (prefix.HasPostfix(0))
+                {
+                    Postfix postfix = prefix.Postfix(0);
+                    /*obj.func1().x = 3
+                      => <obj.func1()>.x = 3
+                      => <<obj.func1>()>.x = 3
+                      => <obj_func1()>.x = 3
+                      => p.x = 3 */
+                    if (postfix is Dot)
+                    {
+                        object access = prefix.EvalSubExpr(env, 1);
+                        if (access is KObject)
+                            return SetField((KObject)access, (Dot)prefix.Postfix(0), rValue);
+                    }
+                    else if (postfix is ArrayRef arrayRef)
+                    {
+                        object obj = prefix.EvalSubExpr(env, 1);
+                        object index = arrayRef.Index.Evaluate(env);
+                        if (obj is object[])
+                        {
+                            (obj as object[])[Convert.ToInt32(index)] = rValue;
+                        }
+                        else if (obj is List<object>)
+                        {
+                            (obj as List<object>)[Convert.ToInt32(index)] = rValue;
+                        }
+                        //else if (obj is Indexable)
+                        //{
+                        //    (obj as Indexable)[index] = rValue;
+                        //}
+                        //调用索引器
+                        else if (obj is KObject)
+                        {
+                            var method = obj.GetType().GetMethod("set_Item");
+                            if (method != null)
+                                method.Invoke(obj, new[] { index, rValue });
+                            else
+                                Arguments.Call((obj as KObject)
+                                    .Read<IFunction>("setter"), env, index, rValue);
+                        }
+                    }
+                }
+            }
+            else
+                throw new KException("Bad assignment", left.LineNo);
+            return rValue;
+        }
+
+
+        //为对象的成员字段赋值
+        public static object SetField(KObject obj, Dot postExpr, object rvalue)
+        {
+            string name = postExpr.Name;    //获取.后面的成员名称
+            try
+            {
+                obj.Write(name, rvalue);
+                return rvalue;
+            }
+            catch
+            {
+                throw new KException("Bad member access: " + name, postExpr.LineNo);
+            }
         }
 
         private static double ToDouble(object val)

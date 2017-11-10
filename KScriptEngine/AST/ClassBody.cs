@@ -37,7 +37,7 @@ namespace KScript.AST
         /// </summary>
         /// <param name="env"></param>
         /// <returns></returns>
-        public List<ASTree> InitForClassInfo(string className, Environment env)
+        public List<ASTree> InitForClassInfo(Environment env)
         {
             //foreach (var member in this)
             //    member.Evaluate(env);
@@ -47,7 +47,7 @@ namespace KScript.AST
                 if(ast is DefStmnt) 
                 {
                     var def = ast as DefStmnt;
-                    if (def.IsStatic || def.Name == className)
+                    if (def.IsStatic/* || def.Name == className*/)
                         def.Evaluate(env);
                     else
                         nonStaticTemp.Add(def);
@@ -60,7 +60,12 @@ namespace KScript.AST
                     else
                         nonStaticTemp.Add(decl);
                 }
-                else if (!(ast is InstExpr && (ast as InstExpr).InstName == "using"))
+                //TODO:using语句对于静态和非静态作用域都有效
+                else if (ast is InstExpr && (ast as InstExpr).InstName == "using")
+                {
+                    ast.Evaluate(env);
+                }
+                else
                 {
                     throw new KException("Invalid expression in class body!", ast.LineNo);
                 }

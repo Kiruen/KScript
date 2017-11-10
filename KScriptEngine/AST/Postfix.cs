@@ -38,7 +38,7 @@ namespace KScript.AST
         }
 
         /// <summary>
-        /// 动态调用某个(组中指定的)函数
+        /// 动态调用某个(组中指定的)函数实例
         /// </summary>
         /// <param name="func">函数实例</param>
         /// <param name="callerEnv">调用者的环境</param>
@@ -102,7 +102,7 @@ namespace KScript.AST
         }
 
         /// <summary>
-        /// 初始化对象,即执行对象的类定义里的内容(不等于构造函数！)
+        /// 初始化对象,即执行对象的类定义里的内容(不等于构造函数！相当于C++的类内初始化)
         /// </summary>
         /// <param name="info">类的元数据</param>
         /// <param name="finalEnv">最终构建的类的内环境</param>
@@ -115,25 +115,26 @@ namespace KScript.AST
             innerEnv.PutInside("type", info);                //类元数据,用于反射
             if (info.Super != null)
             {
-                var superInfo = info.Super;
                 var superInEnv = new NestedEnv();
                 //插入直接父类的内部环境
                 innerEnv.InsertEnv(superInEnv);
-                var super = IniObject(superInfo, superInEnv);
-                //上面两句位置一定不能对调！
+                var super = IniObject(info.Super, superInEnv);
+                //上面两句位置一定不能对调！因为父类初始化时
+                //需要用到外部环境(如全局环境)中的对象,如果
+                //对调,则由于superInEnv是孤立的而导致初始化失败
                 innerEnv.PutInside("super", super);          //仿照js的prototype模式
             }
             info.Body.Evaluate(innerEnv);                    //会向当前环境里添加变量、函数实例等
             //向类定义中附加一份内部构造函数(初始化用),以供子类调用
-            //注意,此处的_init是不带返回值的_cons,先于_cons被构造
+            //注意,此处的_init相当于不带返回值的_cons,先于_cons被构造
             var initor = new OLFunction();
             innerEnv.PutInside("_init", initor);
             if (innerEnv.Contains(info.Name))
             {
                 //将原先构造器的所有重载版本放入新的init对象中
                 innerEnv.Get<OLFunction>(info.Name)
-                .Select(cons => initor.Add(cons.Clone() as Function))
-                .ToArray();
+                        .Select(cons => initor.Add(cons.Clone() as Function))
+                        .ToArray();
                 //改变构造器名称(防止跟类名重复)
                 innerEnv.UpdateName(info.Name, "_cons");
             }
@@ -159,7 +160,7 @@ namespace KScript.AST
         {
             try
             {
-                //索引可以使任意类型的
+                //索引值可以是任意类型的
                 object index = Index.Evaluate(env);
                 if (prefix is object[])
                     return (prefix as object[])[Convert.ToInt32(index)];
@@ -167,10 +168,6 @@ namespace KScript.AST
                 {
                     return (prefix as List<object>)[Convert.ToInt32(index)];
                 }
-                //else if (prefix is Indexable)
-                //{
-                //    return (prefix as Indexable)[index];
-                //}
                 //调用索引器
                 else if (prefix is KObject)
                 {
@@ -179,13 +176,7 @@ namespace KScript.AST
                     //首先处理基本类型
                     var getter = prefix.GetType().GetMethod("get_Item");
                     if (getter != null)
-                    {
-                        /*                
-                        if (prefix is KString)
-                            return (prefix as KString)[index];
-                        */
                         return getter.Invoke(prefix, new[] { index });
-                    }
                     else
                         return Arguments.Call((prefix as KObject).Read<IFunction>("getter"), env, index);
                 }
@@ -196,9 +187,9 @@ namespace KScript.AST
                     return Enumerable.ElementAt(collection, Convert.ToInt32(index));
                 }
             }
-            catch
+            catch(Exception exc)
             {
-                throw new KException("bad array access", this, LineNo);
+                throw new KException($"bad array access:\r\n{exc.Message}", LineNo);
             }
         }
 

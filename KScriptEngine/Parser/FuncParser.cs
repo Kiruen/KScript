@@ -18,18 +18,19 @@ namespace KScript
                 rule0().Ast(modifier).AddId(reserved), 
                 rule0().AddId(reserved)
             );
-            //param = rule0().AddId(reserved);
-            //可变长参数表:指定某参数为params;第二个没用。。为何？
+
+            //可变长参数表:指定某参数为params;下面第二个没用。。为何？
             //param = rule0().Or(rule0().Sep("params").AddId(reserved), rule0().AddId(reserved));
             //param = rule0().Option(rule0().Sep("params")).AddId(reserved);
-            parames = rule(typeof(ParameterList))
-                        .Ast(param)
-                        .Rep(rule0().Sep(",").Ast(param));
+            //parames = rule(typeof(ParameterList))
+            //            .Ast(param)
+            //            .Rep(rule0().Sep(",").Ast(param));
+            parames = ElementList(param, typeof(ParameterList));
             paramlist = rule0().Sep("(").Maybe(parames).Sep(")");
-
             def = rule(typeof(DefStmnt)).Sep("def").Option(modifier)
                         .AddId(reserved).Ast(paramlist).Ast(block);
-            args = rule(typeof(Arguments)).Ast(expr).Rep(rule0().Sep(",").Ast(expr));
+            //args = rule(typeof(Arguments)).Ast(expr).Rep(rule0().Sep(",").Ast(expr));
+            args = ElementList(expr, typeof(Arguments));
             postfix = rule0().Sep("(").Maybe(args).Sep(")");    //由(识别！
 
             //varName(..,..)->args->expr->factor->primary->VarName(expr1, expr2...)

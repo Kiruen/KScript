@@ -7,21 +7,26 @@ namespace KScript.AST
 {
     public class SetOrDictLiteral : ASTList
     {
+        protected InitalList InitList { get; set; }
+
         public SetOrDictLiteral(List<ASTree> list) : base(list)
-        { }
+        {
+             InitList = list[0] as InitalList;
+        }
 
         public override object Evaluate(Environment env)
         {
             //为什么先addtoken然后ast,当后面的值表为单组表达式时,不会
             //保留单组表达式的ASTList,而不像那样做,就会保留??
             //还在纳闷为什么不能用拓展方法呢。。原来是没有使用Linq命名空间
-            if (children.Count > 0 && children[0] is BinaryExpr &&
-                (children[0] as BinaryExpr).Operator == ":")
-                return new KDict(children
+            //if (children.Count > 0 && children[0] is BinaryExpr &&
+            //    (children[0] as BinaryExpr).Operator == ":")
+            if (!InitList.IsEmpty && InitList[0] is BinaryExpr bexp && bexp.Operator == ":")
+                return new KDict(InitList
                     .Select(expr => expr.Evaluate(env) as KTuple)
                     .ToDictionary(tuple => tuple[0], tuple => tuple[1]));
             else
-                return new KSet(children.Select
+                return new KSet(InitList.Select
                         (expr => expr.Evaluate(env)));
 
             //KDict dict = new KDict();
@@ -38,16 +43,4 @@ namespace KScript.AST
             //return dict;
         }
     }
-
-    //public class SetLiteral : ASTList
-    //{
-    //    public SetLiteral(List<ASTree> list) : base(list)
-    //    { }
-
-    //    public override object Evaluate(Environment env)
-    //    {
-    //        return new KSet(children
-    //            .Select(expr => expr.Evaluate(env)));
-    //    }
-    //}
 }

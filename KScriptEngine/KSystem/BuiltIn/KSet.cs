@@ -45,8 +45,7 @@ namespace KScript.KSystem.BuiltIn
                 set = new HashSet<object>();
         }
 
-        public KSet(IEnumerable<object> coll)
-            :this(0)
+        public KSet(IEnumerable<object> coll) :this(0)
         {
             foreach (var val in coll)
                 set.Add(val);

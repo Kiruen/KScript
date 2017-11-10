@@ -36,6 +36,15 @@ namespace KScript.KSystem.BuiltIn
             set { throw new KException("Can't change an invariable object!", Debugger.CurrLineNo); }
         }
 
+        public object this[int index]
+        {
+            get
+            {
+                return elements[index];
+            }
+            set { throw new KException("Can't change an invariable object!", Debugger.CurrLineNo); }
+        }
+
         public KTuple(object obj1, object obj2)
         {
             var list = new List<object>();
